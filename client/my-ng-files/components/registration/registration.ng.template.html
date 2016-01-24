@@ -1,0 +1,27 @@
+<app-header></app-header>
+
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <h2>Register for {{vm.title}}</h2>
+
+    <form name="form" novalidate>
+
+      <input placeholder="User Name" name="username" ng-model="theName" ng-model-options="{updateOn:'blur'}" required pattern=".{5,}" />
+      <div class="error-message" ng-show="form.username.$invalid && !form.username.$pristine">User Name with 5 or more characters required.</div>
+
+      <input placeholder="E-mail" name="email" ng-model="theEmail" ng-model-options="{updateOn:'blur'}" required type="email" />
+      <div class="error-message" ng-show="form.email.$invalid && !form.email.$pristine">Valid e-mail address required.</div>
+
+      <input placeholder="Password" name="pwd" ng-model="thePwd" ng-model-options="{ updateOn: 'blur' }" required type="password" pattern=".{6,}" />
+      <div class="error-message" ng-show="form.pwd.$invalid && !form.pwd.$pristine">Passwords must have at 6 characters or more.</div>
+
+      <input placeholder="Check Password" name="confirmPassword" ng-model="chkPwd" type="password" wj-validation-error="chkPwd == thePwd" />
+      <div class="error-message" ng-show="form.confirmPassword.$invalid && !form.confirmPassword.$pristine">Sorry, the passwords don't match.</div>
+
+      <button type="submit" ng-disabled="form.$invalid">Register</button>
+    </form>
+
+  </div>
+</div>
+
+<app-footer></app-footer>
