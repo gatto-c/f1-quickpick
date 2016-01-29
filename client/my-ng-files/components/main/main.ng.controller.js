@@ -12,6 +12,8 @@
   function MainController($log, appTitle) {
     var vm = this;
 
+    vm.selected_season = 2016;
+
     vm.title = appTitle;
   }
 

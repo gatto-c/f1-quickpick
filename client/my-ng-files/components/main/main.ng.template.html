@@ -1,8 +1,18 @@
 <app-header></app-header>
 
 <div class="row">
-  <div class="medium-6 medium-offset-3 columns">
-    <h2>F1 QuickPick Main Page</h2>
+  <div class="small-12 columns" style="height: 25px;"></div>
+  <div class="small-12 columns" style="text-align: center">
+    <h2>Current Season: {{vm.selected_season}}</h2>
+  </div>
+  <div class="small-12 columns" style="text-align: center">
+    <h3>Previous Race: {{vm.previous_race}}</h3>
+  </div>
+  <div class="small-12 columns" style="text-align: center">
+    <h3>Current Race: {{vm.current_race}}</h3>
+  </div>
+  <div class="small-12 columns" style="text-align: center">
+    <h3>Next Race: {{vm.next_race}}</h3>
   </div>
 </div>
 
