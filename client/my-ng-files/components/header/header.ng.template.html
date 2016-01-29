@@ -1,14 +1,14 @@
 <div class="container">
   <div class="row">
-    <div class="col-xs-8 f1-title">
+    <div class="small-8 f1-title columns">
       {{vm.appTitle}}
     </div>
-    <div class="col-xs-4 f1-title" ng-if="vm.loggedIn">
+    <div class="small-4 f1-title columns" ng-if="vm.loggedIn">
       <div style="float: left"><a href="/profile/{{ vm.player }}">My Profile</a></div>
       <div class="divider"  style="float: right"></div>
       <div style="float: right" ng-controller="LogoutController as loc"><a ng-click="loc.logout()" style="cursor: pointer">Logout</a></div>
     </div>
-    <div class="col-xs-4 f1-title" ng-if="!vm.loggedIn">
+    <div class="small-4 f1-title columns" ng-if="!vm.loggedIn">
       &nbsp;
     </div>
   </div>
