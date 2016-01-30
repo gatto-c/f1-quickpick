@@ -413,7 +413,6 @@ function($routeProvider) {
 
   .service('ergastCalls', ergastCalls);
 
-7
   /**
    * wrapper for all ergast based calls to ergast api
    * @param $log

@@ -23,7 +23,8 @@ module.exports.startServer = function(config) {
     mongo = require('koa-mongo'),
     mongoose = require('mongoose'),
     passport = require('koa-passport'),
-    jwt = require('koa-jwt');
+    jwt = require('koa-jwt'),
+    loadYear = require('admin/load-year');
 
   // integration
   const
@@ -62,15 +63,24 @@ module.exports.startServer = function(config) {
     cache: false
   }));
 
-  // todo: use mongo
+  //// connect to mongoose erm
   mongoose.connect(config.mongoUri);
-  //app.use(mongo({
-  //    uri: config.mongoUri,
-  //    max: 100,
-  //    min: 1,
-  //    timeout: 30000,
-  //    log: false
-  //}));
+
+  loadYear.loadYear(2016);
+
+  //
+  ////create new model for race
+  //var Race = require('./server/models/race');
+  //var race = new Race({year: 2016, race_number: 1, race_name: "Australian Grand Prix", race_circuit: "Albert Park Grand Prix Circuit", race_locale: "Melbourne", race_country: "Australia", race_date: Date("2016-03-20T05:00:00Z")});
+  //race.save(function (err) {
+  //  if (err) {
+  //    return err;
+  //  }
+  //  else {
+  //    logger.log('info', 'Race saved: ', race.race_name);
+  //  }
+  //});
+
 
 
   // body parser

@@ -18,9 +18,6 @@ var genHash = function(password) {
   return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
-//// generating a password hash
-//PlayerSchema.methods.generateHash = genHash;
-
 // checking if password is valid
 PlayerSchema.methods.validPassword = function(password) {
   return bcrypt.compareSync(password, this.password);
