@@ -66,23 +66,6 @@ module.exports.startServer = function(config) {
   //// connect to mongoose erm
   mongoose.connect(config.mongoUri);
 
-  loadYear.loadYear(2016);
-
-  //
-  ////create new model for race
-  //var Race = require('./server/models/race');
-  //var race = new Race({year: 2016, race_number: 1, race_name: "Australian Grand Prix", race_circuit: "Albert Park Grand Prix Circuit", race_locale: "Melbourne", race_country: "Australia", race_date: Date("2016-03-20T05:00:00Z")});
-  //race.save(function (err) {
-  //  if (err) {
-  //    return err;
-  //  }
-  //  else {
-  //    logger.log('info', 'Race saved: ', race.race_name);
-  //  }
-  //});
-
-
-
   // body parser
   app.use(bodyParser());
 

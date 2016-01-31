@@ -1,29 +1,15 @@
 var rp = require('request-promise');
 var logger = require('../../logger');
 var _ = require('lodash');
+var Race = require('../models/race');
 
-//var loadYear = function*(year) {
-//  logger.debug('here');
-//
-//  var options = {
-//    url: 'http://ergast.com/api/f1/2016.json',
-//    headers: { 'User-Agent': 'request' }
-//  };
-//
-//  logger.debug('options:', options);
-//
-//  var response = yield request(options);
-//
-//  logger.debug('response:', response);
-//
-//  var info = JSON.parse(response.body);
-//
-//  logger.debug('2016 race results: ', info);
-//};
-
+/**
+ * Aquire and save race calendar data
+ * @param year
+ */
 var loadYear = function(year) {
   var options = {
-    uri: 'http://ergast.com/api/f1/2016.json',
+    uri: 'http://ergast.com/api/f1/' + year + '.json',
     headers: {
       'User-Agent': 'Request-Promise'
     },
@@ -33,33 +19,37 @@ var loadYear = function(year) {
   rp(options)
     .then(function (races) {
       var myRaces = races;
-      //logger.debug('Races:', myRaces);
-      var raceTable = myRaces.MRData.RaceTable
-      logger.debug('Races:', raceTable.Races[3]);
+      var raceCount = myRaces.MRData.total;
+      var raceTable = myRaces.MRData.RaceTable;
+      var raceArray = myRaces.MRData.RaceTable.Races;
 
+      logger.debug('Loading', raceCount, 'races');
+      logger.debug('Races:', raceArray[0].Circuit);
 
+      for(var index in raceArray) {
+        if (raceArray.hasOwnProperty(index)) {
+          r = raceArray[index];
+          var race = new Race({
+            year: r.season,
+            race_number: r.round,
+            race_name: r.raceName,
+            race_circuit: r.Circuit.circuitName,
+            race_locale: r.Circuit.Location.locality,
+            race_country: r.Circuit.Location.country,
+            race_date: new Date(r.date + 'T' + r.time)
+          });
 
-      //var object = _.object(_.map(races, function (value, key) {
-      //  logger.debug('key: ', key, ', value:', value);
-      //  return [key, value];
-      //}));
-      //logger.debug('Object:', object);
+          race.save(function (err) {
+            if (err) {
+              return err;
+            }
+            else {
+              logger.log('info', 'Race saved: ', race.race_name);
+            }
+          });
+        }
+      }
 
-      //var mappedArray = _.map(races, function (value, key) {
-      //  logger.debug('key: ', key, ', value:', value);
-      //  return [key, value];
-      //});
-      //logger.debug('mappedArray:', mappedArray);
-
-      //var nestedArray = _.map(races, 'season');
-      //logger.debug('nestedArray:', nestedArray);
-
-      //var r = _.find(races, 'series');
-      //logger.debug('found:', r['url']);
-
-      //_.forOwn(races, function(value, key){
-      //  logger.debug('value: ', value, ', key:', key);
-      //})
 
 
 

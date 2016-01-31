@@ -58,6 +58,18 @@ angular
 ;(function() {
 "use strict";
 
+angular.module("app.config", [])
+
+.constant("name", "config")
+
+.constant("env", "development")
+
+;
+}());
+
+;(function() {
+"use strict";
+
 /* eslint-disable */
 angular
 

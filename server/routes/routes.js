@@ -5,7 +5,8 @@ const
   logger = require('../../logger'),
   Player = require('../models/player'),
   jwt = require('koa-jwt'),
-  config = require('../../config.js')[process.env['F1QuickPick_ENV']] || require('../../config.js')['development'];
+  config = require('../../config.js')[process.env['F1QuickPick_ENV']] || require('../../config.js')['development'],
+  dataAccess = require('../data-access/data-access');
 
 module.exports.anonymousRouteMiddleware = function(passport) {
   const
@@ -65,6 +66,15 @@ module.exports.anonymousRouteMiddleware = function(passport) {
   routes.get('/logout', function*(next) {
     this.logout();
     this.redirect('/');
+  });
+
+  /**
+   * get the race calendar data for the specified year
+   */
+  routes.get('/raceCalendar/:year', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.getRaceCalendar(ctx.params.year);
   });
 
   return routes.middleware();
