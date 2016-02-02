@@ -102,10 +102,10 @@ gulp.task('other', function () {
 var environment = argv.env || 'development';
 
 gulp.task('env-config', function() {
-  var config = gulp.src('config/' + environment + '.json')
-    .pipe(ngConstant({name: 'app.config'}))
+  return gulp.src('config/' + environment + '.json')
+    .pipe(ngConstant({name: 'f1Quickpick', deps: false}))
     .pipe(concat('app.ng.config.js'))
-    .pipe(gulp.dest('client/my-ng-files'));
+    .pipe(gulp.dest('client'));
 });
 
 /**
@@ -133,7 +133,7 @@ gulp.task('assemble-files',['ng-templates'],function(){
   return gulp.src([
     'client/my-ng-files/**/*.ng.application.js',
     'client/my-ng-files/**/*.ng.constant.js',
-    'client/my-ng-files/**/*.ng.config.js',
+    'client/**/*.ng.config.js',
     'client/my-ng-files/**/*.ng.application.factory.js',
     'client/my-ng-files/**/*.ng.provider.js',
     'client/my-ng-files/**/*.proxy.ng.factory.js',

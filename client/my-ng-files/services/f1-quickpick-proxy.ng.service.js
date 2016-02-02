@@ -13,8 +13,11 @@
    * @param MyHttp
    * @returns {{}}
    */
-  function f1QuickPickProxy($log){
+  function f1QuickPickProxy($log, f1QuickPickAPISAddress){
     var F1QuickPickProxy = {};
+    //var raceCalendar;
+
+    $log.debug('>>>>>>>>>>>>>>>>>>', f1QuickPickAPISAddress);
 
     F1QuickPickProxy.noCall = function() {
       return "";

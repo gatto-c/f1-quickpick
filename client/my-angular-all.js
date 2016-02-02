@@ -47,22 +47,25 @@ angular
 (function() {
   angular
   .module("f1Quickpick")
-  .constant("ergastAPIAddress", "http://ergast.com/api/f1")
   .constant("_", window._)
   .constant("moment", moment)
-  .constant("appTitle", "F1 QuickPick")
-  .constant("lsTokenName", "f1-quickpick-token") ;
 })();
 }());
 
 ;(function() {
 "use strict";
 
-angular.module("app.config", [])
-
-.constant("name", "config")
+angular.module("f1Quickpick")
 
 .constant("env", "development")
+
+.constant("ergastAPIAddress", "http://ergast.com/api/f1")
+
+.constant("f1QuickPickAPISAddress", "http://localhost:8080")
+
+.constant("appTitle", "F1 QuickPick")
+
+.constant("lsTokenName", "f1-quickpick-token")
 
 ;
 }());
@@ -497,6 +500,57 @@ function($routeProvider) {
 
     .module("f1Quickpick")
 
+    .service('f1QuickPickProxy', f1QuickPickProxy);
+
+  /**
+   * wrapper for all ergast based calls to ergast api
+   * @param $log
+   * @param MyHttp
+   * @returns {{}}
+   */
+  function f1QuickPickProxy($log, f1QuickPickAPISAddress){
+    var F1QuickPickProxy = {};
+    //var raceCalendar;
+
+    $log.debug('>>>>>>>>>>>>>>>>>>', f1QuickPickAPISAddress);
+
+    F1QuickPickProxy.noCall = function() {
+      return "";
+    };
+
+    F1QuickPickProxy.getRaceCalendar = function(year) {
+      var myPromise;
+
+      $log.info('f1QuickPickProxy.getRaceCalendar:', year);
+
+      //myPromise = MyHttp
+      //  .path(ergastAPIAddress)
+      //  .path(year)
+      //  .path('results.json?limit=500')
+      //  .get()
+      //  .catch(function () {
+      //    myPromise = null
+      //  });
+
+      return myPromise;
+    };
+
+    return F1QuickPickProxy;
+  }
+
+})();
+}());
+
+;(function() {
+"use strict";
+
+(function() {
+  'use strict';
+
+  angular
+
+    .module("f1Quickpick")
+
     .controller('raceResultsController', raceResultsController);
 
   raceResultsController.$inject = ['$log','MyHttp', 'ergastCalls'];
@@ -664,10 +718,14 @@ function($routeProvider) {
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appTitle'];
+  MainController.$inject = ['$log', 'appTitle', 'f1QuickPickProxy'];
 
-  function MainController($log, appTitle) {
+  function MainController($log, appTitle, f1QuickPickProxy) {
     var vm = this;
+
+    //f1QuickPickProxy.noCall();
+
+    //var d = "ddddddddddd";
 
     vm.selected_season = 2016;
 
