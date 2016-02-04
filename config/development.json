@@ -1,7 +1,7 @@
 {
   "env": "development",
   "ergastAPIAddress": "http://ergast.com/api/f1",
-  "f1QuickPickAPISAddress": "http://localhost:8080",
+  "f1QuickPickAPIAddress": "http://localhost:8080",
   "appTitle": "F1 QuickPick",
   "lsTokenName": "f1-quickpick-token"
 }

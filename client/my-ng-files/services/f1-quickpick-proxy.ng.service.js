@@ -7,37 +7,35 @@
 
     .service('f1QuickPickProxy', f1QuickPickProxy);
 
-  /**
-   * wrapper for all ergast based calls to ergast api
-   * @param $log
-   * @param MyHttp
-   * @returns {{}}
-   */
-  function f1QuickPickProxy($log, f1QuickPickAPISAddress){
-    var F1QuickPickProxy = {};
-    //var raceCalendar;
 
-    $log.debug('>>>>>>>>>>>>>>>>>>', f1QuickPickAPISAddress);
+  // inject dependencies
+  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'f1QuickPickAPIAddress'];
+
+  function f1QuickPickProxy($log, MyHttp, f1QuickPickAPIAddress){
+    var F1QuickPickProxy = {};
+    var getRaceCalendarPromise = null;
 
     F1QuickPickProxy.noCall = function() {
-      return "";
+      return;
     };
 
     F1QuickPickProxy.getRaceCalendar = function(year) {
-      var myPromise;
+      if (!getRaceCalendarPromise) {
+        $log.info('f1QuickPickProxy.getRaceCalendar:', year);
 
-      $log.info('f1QuickPickProxy.getRaceCalendar:', year);
+        getRaceCalendarPromise = MyHttp
+          .path(f1QuickPickAPIAddress)
+          .path('raceCalendar')
+          .path(year)
+          .get()
+          .catch(function () {
+            getRaceCalendarPromise = null
+          });
+      } else {
+        $log.debug('f1QuickPickProxy: raceCalendar data already loaded');
+      }
 
-      //myPromise = MyHttp
-      //  .path(ergastAPIAddress)
-      //  .path(year)
-      //  .path('results.json?limit=500')
-      //  .get()
-      //  .catch(function () {
-      //    myPromise = null
-      //  });
-
-      return myPromise;
+      return getRaceCalendarPromise;
     };
 
     return F1QuickPickProxy;

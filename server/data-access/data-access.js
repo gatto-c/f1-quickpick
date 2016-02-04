@@ -8,7 +8,7 @@ var Race = require('../models/race');
 module.exports.getRaceCalendar = function*(year){
   var data = yield Race.find({
     year: year
-  }).exec();
+  }).sort('race_number').exec();
 
   return data;
 };

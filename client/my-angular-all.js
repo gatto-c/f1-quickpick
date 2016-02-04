@@ -61,7 +61,7 @@ angular.module("f1Quickpick")
 
 .constant("ergastAPIAddress", "http://ergast.com/api/f1")
 
-.constant("f1QuickPickAPISAddress", "http://localhost:8080")
+.constant("f1QuickPickAPIAddress", "http://localhost:8080")
 
 .constant("appTitle", "F1 QuickPick")
 
@@ -502,37 +502,35 @@ function($routeProvider) {
 
     .service('f1QuickPickProxy', f1QuickPickProxy);
 
-  /**
-   * wrapper for all ergast based calls to ergast api
-   * @param $log
-   * @param MyHttp
-   * @returns {{}}
-   */
-  function f1QuickPickProxy($log, f1QuickPickAPISAddress){
-    var F1QuickPickProxy = {};
-    //var raceCalendar;
 
-    $log.debug('>>>>>>>>>>>>>>>>>>', f1QuickPickAPISAddress);
+  // inject dependencies
+  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'f1QuickPickAPIAddress'];
+
+  function f1QuickPickProxy($log, MyHttp, f1QuickPickAPIAddress){
+    var F1QuickPickProxy = {};
+    var getRaceCalendarPromise = null;
 
     F1QuickPickProxy.noCall = function() {
-      return "";
+      return;
     };
 
     F1QuickPickProxy.getRaceCalendar = function(year) {
-      var myPromise;
+      if (!getRaceCalendarPromise) {
+        $log.info('f1QuickPickProxy.getRaceCalendar:', year);
 
-      $log.info('f1QuickPickProxy.getRaceCalendar:', year);
+        getRaceCalendarPromise = MyHttp
+          .path(f1QuickPickAPIAddress)
+          .path('raceCalendar')
+          .path(year)
+          .get()
+          .catch(function () {
+            getRaceCalendarPromise = null
+          });
+      } else {
+        $log.debug('f1QuickPickProxy: raceCalendar data already loaded');
+      }
 
-      //myPromise = MyHttp
-      //  .path(ergastAPIAddress)
-      //  .path(year)
-      //  .path('results.json?limit=500')
-      //  .get()
-      //  .catch(function () {
-      //    myPromise = null
-      //  });
-
-      return myPromise;
+      return getRaceCalendarPromise;
     };
 
     return F1QuickPickProxy;
@@ -718,18 +716,41 @@ function($routeProvider) {
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appTitle', 'f1QuickPickProxy'];
+  MainController.$inject = ['$log', 'appTitle', 'f1QuickPickProxy', 'moment'];
 
-  function MainController($log, appTitle, f1QuickPickProxy) {
+  function MainController($log, appTitle, f1QuickPickProxy, moment) {
     var vm = this;
-
-    //f1QuickPickProxy.noCall();
-
-    //var d = "ddddddddddd";
-
     vm.selected_season = 2016;
-
     vm.title = appTitle;
+
+    $log.debug('Current month: ', moment().month());
+
+    var getRaces = function(index) {
+      //find the current(upcoming) race based on today's date
+
+    };
+
+
+    f1QuickPickProxy.getRaceCalendar(vm.selected_season).then(
+      function(data) {
+        $log.debug('race calendar: ', data);
+
+        angular.forEach(data, function(record, index) {
+          $log.debug('index:', index, ', record: ', record.race_date);
+
+
+
+        });
+
+      },
+      function(err) {
+        $log.error(err);
+      }
+    );
+
+
+
+
   }
 
 })();

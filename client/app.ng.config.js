@@ -4,7 +4,7 @@ angular.module("f1Quickpick")
 
 .constant("ergastAPIAddress", "http://ergast.com/api/f1")
 
-.constant("f1QuickPickAPISAddress", "http://localhost:8080")
+.constant("f1QuickPickAPIAddress", "http://localhost:8080")
 
 .constant("appTitle", "F1 QuickPick")
 
