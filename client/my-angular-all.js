@@ -57,15 +57,14 @@ angular
 
 angular.module("f1Quickpick")
 
-.constant("env", "development")
-
-.constant("ergastAPIAddress", "http://ergast.com/api/f1")
-
-.constant("f1QuickPickAPIAddress", "http://localhost:8080")
-
-.constant("appTitle", "F1 QuickPick")
-
-.constant("lsTokenName", "f1-quickpick-token")
+.constant("appConfig", {
+	"env": "development",
+	"appTitle": "F1 QuickPick (dev)",
+	"lsTokenName": "f1-quickpick-token",
+	"season": 2017,
+	"apiAddress": "http://localhost:8080",
+	"ergastAPIAddress": "http://ergast.com/api/f1"
+})
 
 ;
 }());
@@ -244,7 +243,7 @@ function($routeProvider) {
     .service('AuthService', AuthService);
 
     // inject dependencies
-    AuthService.$inject = ['$q', '$log', '$window', 'MyHttp', 'lsTokenName'];
+    AuthService.$inject = ['$q', '$log', '$window', 'MyHttp', 'appConfig'];
 
 
     /**
@@ -256,7 +255,7 @@ function($routeProvider) {
      * @returns {{isLoggedIn: isLoggedIn, currentUser: currentUser, saveToken: saveToken, getToken: getToken, login: login, logout: logout, register: register}}
      * @constructor
      */
-    function AuthService($q, $log, $window, MyHttp, lsTokenName) {
+    function AuthService($q, $log, $window, MyHttp, appConfig) {
       $log.debug('AuthService Initializing...');
 
       function isLoggedIn() {
@@ -283,11 +282,11 @@ function($routeProvider) {
       }
 
       function saveToken(token) {
-        $window.localStorage[lsTokenName] = token;
+        $window.localStorage[appConfig.lsTokenName] = token;
       }
 
       function getToken() {
-        return $window.localStorage[lsTokenName];
+        return $window.localStorage[appConfig.lsTokenName];
       }
 
       /**
@@ -390,7 +389,7 @@ function($routeProvider) {
           $log.debug('AuthService: data: ', data.status);
           if(data && data.status == 200) {
             $log.debug('Successfully logged out');
-            $window.localStorage.removeItem(lsTokenName);
+            $window.localStorage.removeItem(appConfig.lsTokenName);
             deferred.resolve();
           } else {
             $log.error('Logout error: ', data);
@@ -504,9 +503,9 @@ function($routeProvider) {
 
 
   // inject dependencies
-  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'f1QuickPickAPIAddress'];
+  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'appConfig'];
 
-  function f1QuickPickProxy($log, MyHttp, f1QuickPickAPIAddress){
+  function f1QuickPickProxy($log, MyHttp, appConfig){
     var F1QuickPickProxy = {};
     var getRaceCalendarPromise = null;
 
@@ -519,7 +518,7 @@ function($routeProvider) {
         $log.info('f1QuickPickProxy.getRaceCalendar:', year);
 
         getRaceCalendarPromise = MyHttp
-          .path(f1QuickPickAPIAddress)
+          .path(appConfig.apiAddress)
           .path('raceCalendar')
           .path(year)
           .get()
@@ -582,6 +581,39 @@ function($routeProvider) {
 
     .module("f1Quickpick")
 
+    .controller('calendarListController', calendarListController);
+
+  calendarListController.$inject = ['$log', 'f1QuickPickProxy', 'moment', 'appConfig'];
+
+  function calendarListController($log, f1QuickPickProxy, moment, appConfig) {
+    var vm = this;
+    vm.races;
+
+
+    f1QuickPickProxy.getRaceCalendar(appConfig.season).then(
+      function(races) {
+        $log.debug('races: ', races);
+        vm.races = races;
+      },
+      function(err) {
+        $log.error(err);
+      }
+    );
+
+  }
+})();
+}());
+
+;(function() {
+"use strict";
+
+(function() {
+  'use strict';
+
+  angular
+
+    .module("f1Quickpick")
+
     .controller('appFooterController', appFooterController);
 
   appFooterController.$inject = [];
@@ -605,11 +637,11 @@ function($routeProvider) {
 
     .controller('appHeaderController', appHeaderController);
 
-  appHeaderController.$inject = ['$log', 'appTitle', 'AuthService'];
+  appHeaderController.$inject = ['$log', 'appConfig', 'AuthService'];
 
-    function appHeaderController($log, appTitle, AuthService) {
+    function appHeaderController($log, appConfig, AuthService) {
       var vm = this;
-      vm.appTitle = appTitle;
+      vm.appTitle = appConfig.appTitle;
       vm.loggedIn = AuthService.isLoggedIn();
       vm.player = AuthService.currentUser();
     }
@@ -629,11 +661,11 @@ function($routeProvider) {
     .controller('LoginController', LoginController);
 
     //inject dependencies
-    LoginController.$inject = ['$scope', '$location', '$routeParams', '$log', 'AuthService', 'appTitle'];
+    LoginController.$inject = ['$scope', '$location', '$routeParams', '$log', 'AuthService', 'appConfig'];
 
-    function LoginController($scope, $location, $routeParams, $log, AuthService, appTitle) {
+    function LoginController($scope, $location, $routeParams, $log, AuthService, appConfig) {
       var vm = this;
-      vm.title = appTitle;
+      vm.title = appConfig.appTitle;
 
       if ($routeParams.username) {
         vm.loginForm = {username: $routeParams.username};
@@ -686,11 +718,11 @@ function($routeProvider) {
     .controller('LogoutController', LogoutController);
 
   //inject dependencies
-  LogoutController.$inject = ['$scope', '$location', '$log', 'AuthService', 'appTitle'];
+  LogoutController.$inject = ['$scope', '$location', '$log', 'AuthService', 'appConfig'];
 
-  function LogoutController($scope, $location, $log, AuthService, appTitle) {
+  function LogoutController($scope, $location, $log, AuthService, appConfig) {
     var vm = this;
-    vm.title = appTitle;
+    vm.title = appConfig.appTitle;
 
     vm.logout = function() {
       $log.debug('Logging out user -  current status: ', AuthService.currentUser());
@@ -716,31 +748,55 @@ function($routeProvider) {
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appTitle', 'f1QuickPickProxy', 'moment'];
+  MainController.$inject = ['$log', 'appConfig', 'f1QuickPickProxy', 'moment'];
 
-  function MainController($log, appTitle, f1QuickPickProxy, moment) {
+  function MainController($log, appConfig, f1QuickPickProxy, moment) {
     var vm = this;
     vm.selected_season = 2016;
-    vm.title = appTitle;
+    vm.raceTrio = {};
+    vm.title = appConfig.appTitle;
 
     $log.debug('Current month: ', moment().month());
 
-    var getRaces = function(index) {
-      //find the current(upcoming) race based on today's date
+    var getCurrentRaceIndex = function(races) {
+      var now = moment('2016-07-25');
+      //var now = moment();
+      var currentRaceIndex = 0;
 
+      //locate the next upcoming race given today's date
+      for (var i = 0, len = races.length; i < len; i++) {
+        var raceDate = moment(races[i].race_date);
+        if(moment(raceDate).isSameOrAfter(now, 'day')) {
+          $log.debug('i: ', i);
+          currentRaceIndex = i;
+          break;
+        }
+      }
+
+      return currentRaceIndex
     };
 
 
     f1QuickPickProxy.getRaceCalendar(vm.selected_season).then(
-      function(data) {
-        $log.debug('race calendar: ', data);
+      function(races) {
+        $log.debug('races1: ', races);
 
-        angular.forEach(data, function(record, index) {
-          $log.debug('index:', index, ', record: ', record.race_date);
+        var currentRaceIndex = getCurrentRaceIndex(races);
+        if (currentRaceIndex == 0) {
+          vm.raceTrio.previousRace = null;
+          vm.raceTrio.currentRace = races[currentRaceIndex];
+          vm.raceTrio.nextRace = races[currentRaceIndex + 1];
+        } else if (currentRaceIndex == races.length - 1) {
+          vm.raceTrio.previousRace = races[currentRaceIndex - 1];
+          vm.raceTrio.currentRace = races[currentRaceIndex];
+          vm.raceTrio.nextRace = null;
+        } else {
+          vm.raceTrio.previousRace = races[currentRaceIndex - 1];
+          vm.raceTrio.currentRace = races[currentRaceIndex];
+          vm.raceTrio.nextRace = races[currentRaceIndex + 1];
+        }
 
-
-
-        });
+        $log.debug('raceTrio: ', vm.raceTrio);
 
       },
       function(err) {
@@ -769,11 +825,11 @@ function($routeProvider) {
     .controller('RegistrationController', RegistrationController);
 
   //inject dependencies
-  RegistrationController.$inject = ['$scope', '$location', '$log', 'AuthService', 'appTitle'];
+  RegistrationController.$inject = ['$scope', '$location', '$log', 'AuthService', 'appConfig'];
 
-  function RegistrationController($scope, $location, $log, AuthService, appTitle) {
+  function RegistrationController($scope, $location, $log, AuthService, appConfig) {
     var vm = this;
-    vm.title = appTitle;
+    vm.title = appConfig.appTitle;
 
     vm.registerForm = {
       username: "",
@@ -839,10 +895,11 @@ function($routeProvider) {
 "use strict";
 
 angular.module("f1Quickpick").run(["$templateCache", function($templateCache) {$templateCache.put("raceResults/raceResults.ng.template.html","<div>\n  <b>Race Results for {{rr.year}}/Race {{rr.race}}</b>\n  <form>\n    Year1:<input type=\"number\" ng-model=\"rr.year\" name=\"year\" min=\"1950\" max=\"2015\"/>\n    Race1:<input type=\"number\" ng-model=\"rr.race\" name=\"race\" min=\"1\" max=\"20\"/>\n  </form>\n</div>\n");
+$templateCache.put("components/calendar-list/calendar-list.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      <ul>\n        <li ng-repeat=\"(index, race) in vm.races\">{{race.race_name}}</li>\n      </ul>\n    </div>\n  </div>\n</div>\n");
 $templateCache.put("components/footer/footer.ng.template.html","<div class=\"container\">\n  <div class=\"row footer-row\">\n      {{ vm.placeholderText }}\n  </div>\n</div>\n");
 $templateCache.put("components/header/header.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      {{vm.appTitle}}\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"vm.loggedIn\">\n      <div style=\"float: left\"><a href=\"/profile/{{ vm.player }}\">My Profile</a></div>\n      <div class=\"divider\"  style=\"float: right\"></div>\n      <div style=\"float: right\" ng-controller=\"LogoutController as loc\"><a ng-click=\"loc.logout()\" style=\"cursor: pointer\">Logout</a></div>\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"!vm.loggedIn\">\n      &nbsp;\n    </div>\n  </div>\n</div>\n");
 $templateCache.put("components/login/login.ng.template.html","<app-header></app-header>\n\n\n<div class=\"row\">\n  <div class=\"medium-6 medium-offset-3 columns\">\n    <h2>Login</h2>\n    <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n    <form name=\"form\" ng-submit=\"vm.login()\" role=\"form\">\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.username.$dirty && form.username.$error.required }\">\n        <label for=\"username\">Username</label>\n        <input type=\"text\" name=\"username\" id=\"username\" class=\"form-control\" ng-model=\"vm.loginForm.username\" required />\n        <span ng-show=\"form.username.$dirty && form.username.$error.required\" class=\"help-block\">Username is required</span>\n      </div>\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.password.$dirty && form.password.$error.required }\">\n        <label for=\"password\">Password</label>\n        <input type=\"password\" name=\"password\" id=\"password\" class=\"form-control\" ng-model=\"vm.loginForm.password\" required />\n        <span ng-show=\"form.password.$dirty && form.password.$error.required\" class=\"help-block\">Password is required</span>\n      </div>\n      <div class=\"form-actions\">\n        <button type=\"submit\" ng-disabled=\"form.$invalid || vm.disabled\" class=\"btn btn-primary\">Login</button>\n        <img ng-if=\"vm.dataLoading\" src=\"data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==\" />\n        <a href=\"#/register\" class=\"btn btn-link\">Register</a>\n      </div>\n    </form>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
-$templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\">\n  <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n  <div class=\"small-12 columns\" style=\"text-align: center\">\n    <h2>Current Season: {{vm.selected_season}}</h2>\n  </div>\n  <div class=\"small-12 columns\" style=\"text-align: center\">\n    <h3>Previous Race: {{vm.previous_race}}</h3>\n  </div>\n  <div class=\"small-12 columns\" style=\"text-align: center\">\n    <h3>Current Race: {{vm.current_race}}</h3>\n  </div>\n  <div class=\"small-12 columns\" style=\"text-align: center\">\n    <h3>Next Race: {{vm.next_race}}</h3>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
+$templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-4 columns\">\n    <calendar-list></calendar-list>\n  </div>\n  <div class=\"small-8 columns\">\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h2>Current Season: {{vm.selected_season}}</h2>\n      </div>\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Previous Race: {{vm.raceTrio.previousRace.race_name}} ({{vm.raceTrio.previousRace.race_date}})</h3>\n      </div>\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Current Race: {{vm.raceTrio.currentRace.race_name}} ({{vm.raceTrio.currentRace.race_date}})</h3>\n      </div>\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Next Race: {{vm.raceTrio.nextRace.race_name}} ({{vm.raceTrio.nextRace.race_date}})</h3>\n      </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registration.ng.template.html","<app-header></app-header>\n\n  <div class=\"row\">\n    <div class=\"medium-6 medium-offset-3 columns\">\n      <h2>Register for {{vm.title}}</h2>\n      <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n      <form name=\"registrationForm\" novalidate ng-submit=\"vm.register()\">\n        <div class=\"form-group\" ng-class=\"{ \'has-error\': registrationForm.username.$touched && registrationForm.username.$invalid }\">\n          <input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"Username\" ng-model=\"vm.registerForm.username\" required />\n          <div ng-messages=\"registrationForm.username.$error\" ng-show=\"registrationForm.username.$touched\" role=\"alert\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"password\" placeholder=\"Password\" ng-model=\"vm.registerForm.password\" required>\n          <div ng-messages=\"registrationForm.password.$error\" ng-show=\"registrationForm.password.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"confirmPassword\" placeholder=\"Confirm Password\" ng-model=\"vm.registerForm.confirmPassword\" required compare-to=\"vm.registerForm.password\">\n          <div ng-messages=\"registrationForm.confirmPassword.$error\" ng-show=\"registrationForm.confirmPassword.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div>\n          <button type=\"submit\" class=\"btn btn-default\" ng-disabled=\"registrationForm.$invalid\">Register</button>\n        </div>\n      </form>\n    </div>\n  </div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registrationConfirmation.ng.template.html","<my-header></my-header>\n\n<div class=\"medium-6 medium-offset-3 columns\">\n  <h2>Welcome {{vm.username}}</h2>\n  <h2>Thanks for joining F1 QuickPick!</h2>\n  <h3><a ng-href=\"#/login/{{vm.username}}\">Login</a> to get started!</h3>\n</div>\n");
 $templateCache.put("components/registration/registrationMessages.ng.template.html","<div class=\"messages\">\n  <div ng-message=\"required\">Required</div>\n  <div ng-message=\"minlength\">Too short</div>\n  <div ng-message=\"maxlength\">Too long</div>\n  <div ng-message=\"email\">Invalid email address</div>\n  <div ng-message=\"compareTo\">Must match the previous entry</div>\n</div>\n");}]);
@@ -864,6 +921,26 @@ angular
       , controller: 'raceResultsController'
       , controllerAs: 'rr'
       , templateUrl: 'raceResults/raceResults.ng.template.html'
+    };
+  });
+}());
+
+;(function() {
+"use strict";
+
+angular
+
+  .module("f1Quickpick")
+
+  .directive('calendarList', function() {
+    return {
+      restrict: 'E'
+      , transclude: true
+      , replace: true
+      , scope: true
+      , controller: 'calendarListController'
+      , controllerAs: 'vm'
+      , templateUrl: 'components/calendar-list/calendar-list.ng.template.html'
     };
   });
 }());

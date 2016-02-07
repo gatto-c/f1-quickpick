@@ -9,9 +9,9 @@
 
 
   // inject dependencies
-  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'f1QuickPickAPIAddress'];
+  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'appConfig'];
 
-  function f1QuickPickProxy($log, MyHttp, f1QuickPickAPIAddress){
+  function f1QuickPickProxy($log, MyHttp, appConfig){
     var F1QuickPickProxy = {};
     var getRaceCalendarPromise = null;
 
@@ -24,7 +24,7 @@
         $log.info('f1QuickPickProxy.getRaceCalendar:', year);
 
         getRaceCalendarPromise = MyHttp
-          .path(f1QuickPickAPIAddress)
+          .path(appConfig.apiAddress)
           .path('raceCalendar')
           .path(year)
           .get()

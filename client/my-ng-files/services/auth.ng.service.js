@@ -12,7 +12,7 @@
     .service('AuthService', AuthService);
 
     // inject dependencies
-    AuthService.$inject = ['$q', '$log', '$window', 'MyHttp', 'lsTokenName'];
+    AuthService.$inject = ['$q', '$log', '$window', 'MyHttp', 'appConfig'];
 
 
     /**
@@ -24,7 +24,7 @@
      * @returns {{isLoggedIn: isLoggedIn, currentUser: currentUser, saveToken: saveToken, getToken: getToken, login: login, logout: logout, register: register}}
      * @constructor
      */
-    function AuthService($q, $log, $window, MyHttp, lsTokenName) {
+    function AuthService($q, $log, $window, MyHttp, appConfig) {
       $log.debug('AuthService Initializing...');
 
       function isLoggedIn() {
@@ -51,11 +51,11 @@
       }
 
       function saveToken(token) {
-        $window.localStorage[lsTokenName] = token;
+        $window.localStorage[appConfig.lsTokenName] = token;
       }
 
       function getToken() {
-        return $window.localStorage[lsTokenName];
+        return $window.localStorage[appConfig.lsTokenName];
       }
 
       /**
@@ -158,7 +158,7 @@
           $log.debug('AuthService: data: ', data.status);
           if(data && data.status == 200) {
             $log.debug('Successfully logged out');
-            $window.localStorage.removeItem(lsTokenName);
+            $window.localStorage.removeItem(appConfig.lsTokenName);
             deferred.resolve();
           } else {
             $log.error('Logout error: ', data);

@@ -7,31 +7,55 @@
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appTitle', 'f1QuickPickProxy', 'moment'];
+  MainController.$inject = ['$log', 'appConfig', 'f1QuickPickProxy', 'moment'];
 
-  function MainController($log, appTitle, f1QuickPickProxy, moment) {
+  function MainController($log, appConfig, f1QuickPickProxy, moment) {
     var vm = this;
     vm.selected_season = 2016;
-    vm.title = appTitle;
+    vm.raceTrio = {};
+    vm.title = appConfig.appTitle;
 
     $log.debug('Current month: ', moment().month());
 
-    var getRaces = function(index) {
-      //find the current(upcoming) race based on today's date
+    var getCurrentRaceIndex = function(races) {
+      var now = moment('2016-07-25');
+      //var now = moment();
+      var currentRaceIndex = 0;
 
+      //locate the next upcoming race given today's date
+      for (var i = 0, len = races.length; i < len; i++) {
+        var raceDate = moment(races[i].race_date);
+        if(moment(raceDate).isSameOrAfter(now, 'day')) {
+          $log.debug('i: ', i);
+          currentRaceIndex = i;
+          break;
+        }
+      }
+
+      return currentRaceIndex
     };
 
 
     f1QuickPickProxy.getRaceCalendar(vm.selected_season).then(
-      function(data) {
-        $log.debug('race calendar: ', data);
+      function(races) {
+        $log.debug('races1: ', races);
 
-        angular.forEach(data, function(record, index) {
-          $log.debug('index:', index, ', record: ', record.race_date);
+        var currentRaceIndex = getCurrentRaceIndex(races);
+        if (currentRaceIndex == 0) {
+          vm.raceTrio.previousRace = null;
+          vm.raceTrio.currentRace = races[currentRaceIndex];
+          vm.raceTrio.nextRace = races[currentRaceIndex + 1];
+        } else if (currentRaceIndex == races.length - 1) {
+          vm.raceTrio.previousRace = races[currentRaceIndex - 1];
+          vm.raceTrio.currentRace = races[currentRaceIndex];
+          vm.raceTrio.nextRace = null;
+        } else {
+          vm.raceTrio.previousRace = races[currentRaceIndex - 1];
+          vm.raceTrio.currentRace = races[currentRaceIndex];
+          vm.raceTrio.nextRace = races[currentRaceIndex + 1];
+        }
 
-
-
-        });
+        $log.debug('raceTrio: ', vm.raceTrio);
 
       },
       function(err) {

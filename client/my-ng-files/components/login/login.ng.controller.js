@@ -8,11 +8,11 @@
     .controller('LoginController', LoginController);
 
     //inject dependencies
-    LoginController.$inject = ['$scope', '$location', '$routeParams', '$log', 'AuthService', 'appTitle'];
+    LoginController.$inject = ['$scope', '$location', '$routeParams', '$log', 'AuthService', 'appConfig'];
 
-    function LoginController($scope, $location, $routeParams, $log, AuthService, appTitle) {
+    function LoginController($scope, $location, $routeParams, $log, AuthService, appConfig) {
       var vm = this;
-      vm.title = appTitle;
+      vm.title = appConfig.appTitle;
 
       if ($routeParams.username) {
         vm.loginForm = {username: $routeParams.username};

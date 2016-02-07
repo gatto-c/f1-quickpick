@@ -1,18 +1,25 @@
 <app-header></app-header>
 
-<div class="row">
-  <div class="small-12 columns" style="height: 25px;"></div>
-  <div class="small-12 columns" style="text-align: center">
-    <h2>Current Season: {{vm.selected_season}}</h2>
+<div class="row" style="margin-top: 18px;">
+  <div class="small-4 columns">
+    <calendar-list></calendar-list>
   </div>
-  <div class="small-12 columns" style="text-align: center">
-    <h3>Previous Race: {{vm.previous_race}}</h3>
-  </div>
-  <div class="small-12 columns" style="text-align: center">
-    <h3>Current Race: {{vm.current_race}}</h3>
-  </div>
-  <div class="small-12 columns" style="text-align: center">
-    <h3>Next Race: {{vm.next_race}}</h3>
+  <div class="small-8 columns">
+    <div class="row">
+      <div class="small-12 columns" style="height: 25px;"></div>
+      <div class="small-12 columns" style="text-align: center">
+        <h2>Current Season: {{vm.selected_season}}</h2>
+      </div>
+      <div class="small-12 columns" style="text-align: center">
+        <h3>Previous Race: {{vm.raceTrio.previousRace.race_name}} ({{vm.raceTrio.previousRace.race_date}})</h3>
+      </div>
+      <div class="small-12 columns" style="text-align: center">
+        <h3>Current Race: {{vm.raceTrio.currentRace.race_name}} ({{vm.raceTrio.currentRace.race_date}})</h3>
+      </div>
+      <div class="small-12 columns" style="text-align: center">
+        <h3>Next Race: {{vm.raceTrio.nextRace.race_name}} ({{vm.raceTrio.nextRace.race_date}})</h3>
+      </div>
+    </div>
   </div>
 </div>
 
