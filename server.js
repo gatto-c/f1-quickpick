@@ -24,7 +24,7 @@ module.exports.startServer = function(config) {
     mongoose = require('mongoose'),
     passport = require('koa-passport'),
     jwt = require('koa-jwt'),
-    loadYear = require('admin/load-year');
+    admin = require('admin/admin');
 
   // integration
   const
@@ -73,6 +73,10 @@ module.exports.startServer = function(config) {
   require('./auth');
   app.use(passport.initialize());
   app.use(passport.session());
+
+  //var rd = admin.loadRaceData(2016, 1);
+  //rd.next();
+  admin.loadYear(2012);
 
   // Anonymous routes (static files)
   app.use(serveStaticContent(__dirname, './client'));

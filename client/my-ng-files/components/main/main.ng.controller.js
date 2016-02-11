@@ -41,17 +41,21 @@
         $log.debug('races1: ', races);
 
         var currentRaceIndex = getCurrentRaceIndex(races);
+
+        vm.raceTrio.currentRace = races[currentRaceIndex];
+        vm.raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z');
+
+        //first race of year
         if (currentRaceIndex == 0) {
           vm.raceTrio.previousRace = null;
-          vm.raceTrio.currentRace = races[currentRaceIndex];
           vm.raceTrio.nextRace = races[currentRaceIndex + 1];
         } else if (currentRaceIndex == races.length - 1) {
+          //last race of year
           vm.raceTrio.previousRace = races[currentRaceIndex - 1];
-          vm.raceTrio.currentRace = races[currentRaceIndex];
           vm.raceTrio.nextRace = null;
         } else {
+          //has previous and subsequent events
           vm.raceTrio.previousRace = races[currentRaceIndex - 1];
-          vm.raceTrio.currentRace = races[currentRaceIndex];
           vm.raceTrio.nextRace = races[currentRaceIndex + 1];
         }
 
