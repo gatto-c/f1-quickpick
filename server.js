@@ -74,9 +74,8 @@ module.exports.startServer = function(config) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  //var rd = admin.loadRaceData(2016, 1);
-  //rd.next();
-  admin.loadYear(2012);
+  admin.loadRaceData(2016, 1).next();
+  //admin.loadYear(2012);
 
   // Anonymous routes (static files)
   app.use(serveStaticContent(__dirname, './client'));

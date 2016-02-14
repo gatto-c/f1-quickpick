@@ -22,6 +22,8 @@
     "lodash": "^3.10.1",
     "mongoose": "^4.3.6",
     "passport-local": "^1.0.0",
+    "q": "^1.4.1",
+    "q-io": "^1.13.2",
     "request-promise": "^2.0.0",
     "swig": "^1.4.2",
     "winston": "^2.1.1"
@@ -75,6 +77,7 @@
     "main-bower-files": "~2.9.0",
     "ng-annotate-loader": "0.0.10",
     "nodemon": "^1.8.1",
+    "promise": "^7.1.1",
     "rimraf": "^2.5.1",
     "traceur-loader": "~0.6.3",
     "uglify-save-license": "~0.4.1",
