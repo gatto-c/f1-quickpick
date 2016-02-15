@@ -9,6 +9,7 @@ var RaceDriverSchema = new Schema({
   race_name: {type: String, required: true},
   driver_id: {type: String, required: true},
   driver_name: {type: String, required: true},
+  driver_code: {type: String, required: true},
   constructor_id: {type: String, required: true},
   constructor_name: {type: String, required: true}
 });

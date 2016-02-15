@@ -1,4 +1,8 @@
 module.exports = {
+  getConfig: function() {
+    return require('./config.js')[process.env['F1QUICKPICK_ENV']] || require('./config.js')['development']
+  },
+
   production: {
     port: 80,
     mongoUri: "mongodb://localhost:27017/Pick6",
