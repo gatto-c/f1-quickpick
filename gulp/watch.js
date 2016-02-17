@@ -38,11 +38,17 @@ gulp.task('watch:ng', ['build'],function () {
   }));
 });
 
+gulp.task('watch:config', ['build'],function () {
+  watch(['config/*.json'], batch(function (events, done) {
+    gulp.start('default', done);
+  }));
+});
+
 /**
  * watch
  * Task composed of other watch subtasks
  */
-gulp.task('watch',['watch:sass','watch:ng']);
+gulp.task('watch',['watch:sass','watch:ng', 'watch:config']);
 
 //gulp.task('watch', ['scripts:watch', 'inject'], function () {
 //  gulp.watch([path.join(conf.paths.src, '/*.html'), 'bower.json'], ['inject-reload']);

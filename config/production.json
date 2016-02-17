@@ -3,7 +3,7 @@
     "env": "production",
     "appTitle": "F1 QuickPick",
     "lsTokenName": "f1-quickpick-token",
-    "season": 2017,
+    "season": 2016,
     "apiAddress": "http://localhost:8080",
     "ergastAPIAddress": "http://ergast.com/api/f1"
   }
