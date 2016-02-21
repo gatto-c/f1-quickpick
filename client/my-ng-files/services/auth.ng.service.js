@@ -25,7 +25,7 @@
      * @constructor
      */
     function AuthService($q, $log, $window, MyHttp, appConfig) {
-      $log.debug('AuthService Initializing...');
+      //$log.debug('AuthService Initializing...');
 
       function isLoggedIn() {
         var token = getToken();
@@ -102,7 +102,7 @@
        * @returns {*}
        */
       function register(username, password) {
-        $log.debug('AuthService: register....');
+        //$log.debug('AuthService: register....');
 
         // create a new instance of deferred
         var deferred = $q.defer();
@@ -118,7 +118,7 @@
         );
 
         myPromise.then(function(response) {
-          $log.debug('registration response: ', response);
+          //$log.debug('registration response: ', response);
 
           if(response && response.status == 200) {
             $log.debug('AuthService: user registered: response: ', response);
@@ -155,7 +155,7 @@
         );
 
         myPromise.then(function(data) {
-          $log.debug('AuthService: data: ', data.status);
+          //$log.debug('AuthService: data: ', data.status);
           if(data && data.status == 200) {
             $log.debug('Successfully logged out');
             $window.localStorage.removeItem(appConfig.lsTokenName);

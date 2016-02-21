@@ -7,26 +7,32 @@
   <div class="small-8 columns">
     <div class="row">
       <div class="small-12 columns" style="height: 25px;"></div>
+    </div>
+    <div class="row">
       <div class="small-12 columns" style="text-align: center">
         <h2>Current Season: {{vm.season}}</h2>
-        <h5 ng-if="vm.overrideCurrentDate">date override: {{vm.overrideCurrentDate}}</h5>
       </div>
+    </div>
+    <div class="row">
       <div class="small-12 columns" style="text-align: center">
         <h3>Upcoming Race</h3>
       </div>
-      <div ng-if="!vm.raceTrio.currentRace">
-        <div class="small-12 columns" style="text-align: center">
-          <h4>No Races Currently Set</h4>
-        </div>
+    </div>
+    <div class="row" ng-if="!vm.raceTrio.currentRace">
+      <div class="small-12 columns" style="text-align: center">
+        <h4>No Races Currently Set</h4>
       </div>
-      <div ng-if="vm.raceTrio.currentRace">
+    </div>
+    <div class="row" ng-if="vm.raceTrio.currentRace">
         <div class="small-12 columns" style="text-align: center">
           <h4>{{vm.raceTrio.currentRace.race_name}}</h4>
         </div>
         <div class="small-12 columns" style="text-align: center">
           <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>
         </div>
-      </div>
+        <div class="small-12 columns" style="text-align: center">
+          <h4>My Picks</h4>
+        </div>
     </div>
   </div>
 </div>

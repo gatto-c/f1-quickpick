@@ -55,8 +55,19 @@ module.exports.startServer = function(config) {
     }
   });
 
-  //use jwt token if available - allow all requests to be processed but require auth downstream
-  //app.use(jwt({ secret: config.jwtSecret, passthrough: true }));
+  // Custom 401 handling if you don't want to expose koa-jwt errors to users
+  app.use(function *(next){
+    try {
+      yield next;
+    } catch (err) {
+      if (401 == err.status) {
+        this.status = 401;
+        this.body = 'Protected resource, use Authorization header to get access\n';
+      } else {
+        throw err;
+      }
+    }
+  });
 
   // establish the server-side templates
   app.use(koaRender('./server/server-side-views', {
@@ -83,6 +94,12 @@ module.exports.startServer = function(config) {
 
   // anonymous API calls
   app.use(routes.anonymousRouteMiddleware(passport));
+
+  // Middleware below this line is only reached if JWT token is valid
+  app.use(jwt({ secret: config.jwtSecret }));
+
+  // secured routes requiring authentication
+  app.use(routes.secureRouteMiddleware(passport));
 
   // It's go time
   app.listen(config.port);

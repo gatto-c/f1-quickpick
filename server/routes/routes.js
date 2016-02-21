@@ -21,6 +21,8 @@ module.exports.anonymousRouteMiddleware = function(passport) {
    */
   routes.post('/login', function*(next) {
     var ctx = this;
+
+
     yield passport.authenticate('local', function*(err, player, info) {
       if (err) throw err;
       if (player === false) {
@@ -60,12 +62,17 @@ module.exports.anonymousRouteMiddleware = function(passport) {
     }
   });
 
-  /**
-   * handle logout get
-   */
-  routes.get('/logout', function*(next) {
-    this.logout();
-    this.redirect('/');
+  return routes.middleware();
+};
+
+
+module.exports.secureRouteMiddleware = function(passport) {
+  const routes = new Router();
+
+  routes.get('/user/:id', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = "{user: 1}";
   });
 
   /**
@@ -73,8 +80,19 @@ module.exports.anonymousRouteMiddleware = function(passport) {
    */
   routes.get('/raceCalendar/:year', function*(next) {
     var ctx = this;
+
+    logger.debug('Received get on RaceCalendar: ', ctx.state);
+
     ctx.type = "application/json";
     ctx.body = yield dataAccess.getRaceCalendar(ctx.params.year);
+  });
+
+  /**
+   * handle logout get
+   */
+  routes.get('/logout', function*(next) {
+    this.logout();
+    this.redirect('/');
   });
 
   return routes.middleware();

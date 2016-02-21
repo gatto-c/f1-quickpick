@@ -187,7 +187,6 @@ function($routeProvider) {
       dataOnly = dataOnly !== false; //defaults to true
 
       var url = this.getUrl();
-      $log.debug('Post response0');
 
       return $http.post(url, objectToPost).
         then(function(response){
@@ -208,11 +207,15 @@ function($routeProvider) {
      * @param dataOnly - will return only the data object of the response object if true
      * @returns {*|{get}}
      */
-    HttpRequest.prototype.get = function(dataOnly) {
+    HttpRequest.prototype.get = function(dataOnly, token) {
       dataOnly = dataOnly !== false; //defaults to true
 
       var url = this.getUrl();
-      return $http.get(url).
+
+      //if a token is provided then specify an auth header
+      var headers = token ?  {'Authorization': 'bearer ' + token} : {};
+
+      return $http.get(url, {headers: headers}).
         then(function(response){
           if(dataOnly) {
             return response.data;
@@ -257,7 +260,7 @@ function($routeProvider) {
      * @constructor
      */
     function AuthService($q, $log, $window, MyHttp, appConfig) {
-      $log.debug('AuthService Initializing...');
+      //$log.debug('AuthService Initializing...');
 
       function isLoggedIn() {
         var token = getToken();
@@ -334,7 +337,7 @@ function($routeProvider) {
        * @returns {*}
        */
       function register(username, password) {
-        $log.debug('AuthService: register....');
+        //$log.debug('AuthService: register....');
 
         // create a new instance of deferred
         var deferred = $q.defer();
@@ -350,7 +353,7 @@ function($routeProvider) {
         );
 
         myPromise.then(function(response) {
-          $log.debug('registration response: ', response);
+          //$log.debug('registration response: ', response);
 
           if(response && response.status == 200) {
             $log.debug('AuthService: user registered: response: ', response);
@@ -387,7 +390,7 @@ function($routeProvider) {
         );
 
         myPromise.then(function(data) {
-          $log.debug('AuthService: data: ', data.status);
+          //$log.debug('AuthService: data: ', data.status);
           if(data && data.status == 200) {
             $log.debug('Successfully logged out');
             $window.localStorage.removeItem(appConfig.lsTokenName);
@@ -504,9 +507,9 @@ function($routeProvider) {
 
 
   // inject dependencies
-  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'appConfig'];
+  f1QuickPickProxy.$inject = ['$log', 'MyHttp', 'appConfig', 'moment', 'AuthService'];
 
-  function f1QuickPickProxy($log, MyHttp, appConfig){
+  function f1QuickPickProxy($log, MyHttp, appConfig, moment, AuthService){
     var F1QuickPickProxy = {};
     var getRaceCalendarPromise = null;
 
@@ -514,15 +517,41 @@ function($routeProvider) {
       return;
     };
 
-    F1QuickPickProxy.getRaceCalendar = function(year) {
+    /**
+     * determines the index of the upcoming race given the current date
+     * @param races
+     * @returns {number}
+     */
+    var getCurrentRaceIndex = function(races) {
+      var now = appConfig.overrideCurrentDate ? moment(appConfig.overrideCurrentDate) : moment();
+      var currentRaceIndex = -1;
+
+      //locate the next upcoming race given today's date
+      for (var i = 0, len = races.length; i < len; i++) {
+        var raceDate = moment(races[i].race_date);
+
+        if(moment(raceDate).isSameOrAfter(now, 'day')) {
+          currentRaceIndex = i;
+          break;
+        }
+      }
+
+      return currentRaceIndex
+    };
+
+    /**
+     * Get the current season's race calendar from Ergast
+     * @returns {*}
+     */
+    F1QuickPickProxy.getRaceCalendar = function() {
       if (!getRaceCalendarPromise) {
-        $log.info('f1QuickPickProxy.getRaceCalendar:', year);
+        $log.info('f1QuickPickProxy.getRaceCalendar:', appConfig.season);
 
         getRaceCalendarPromise = MyHttp
           .path(appConfig.apiAddress)
           .path('raceCalendar')
-          .path(year)
-          .get()
+          .path(appConfig.season)
+          .get(null, AuthService.getToken())
           .catch(function () {
             getRaceCalendarPromise = null
           });
@@ -531,6 +560,39 @@ function($routeProvider) {
       }
 
       return getRaceCalendarPromise;
+    };
+
+    /**
+     * Calculate and return the last, current (upcoming), and next races
+     * @returns {{}}
+     */
+    F1QuickPickProxy.getRaceTrio = function() {
+      var raceTrio = {};
+      F1QuickPickProxy.getRaceCalendar().then(
+        function(races) {
+          var currentRaceIndex = getCurrentRaceIndex(races);
+          if (currentRaceIndex == -1) return;
+
+          raceTrio.currentRace = races[currentRaceIndex];
+          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z');
+
+          //first race of year
+          if (currentRaceIndex == 0) {
+            raceTrio.previousRace = null;
+            raceTrio.nextRace = races[currentRaceIndex + 1];
+          } else if (currentRaceIndex == races.length - 1) {
+            //last race of year
+            raceTrio.previousRace = races[currentRaceIndex - 1];
+            raceTrio.nextRace = null;
+          } else {
+            //has previous and subsequent events
+            raceTrio.previousRace = races[currentRaceIndex - 1];
+            raceTrio.nextRace = races[currentRaceIndex + 1];
+          }
+        }
+      );
+
+      return raceTrio;
     };
 
     return F1QuickPickProxy;
@@ -593,7 +655,7 @@ function($routeProvider) {
 
     f1QuickPickProxy.getRaceCalendar(appConfig.season).then(
       function(races) {
-        $log.debug('races: ', races);
+        //$log.debug('races: ', races);
         vm.races = races;
       },
       function(err) {
@@ -617,10 +679,11 @@ function($routeProvider) {
 
     .controller('appFooterController', appFooterController);
 
-  appFooterController.$inject = [];
+  appFooterController.$inject = ['appConfig'];
 
-  function appFooterController() {
+  function appFooterController(appConfig) {
     var vm = this;
+    vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
     vm.placeholderText = "...";
   }
 })();
@@ -749,73 +812,15 @@ function($routeProvider) {
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appConfig', 'f1QuickPickProxy', 'moment'];
+  MainController.$inject = ['$log', 'appConfig', 'f1QuickPickProxy'];
 
-  function MainController($log, appConfig, f1QuickPickProxy, moment) {
+  function MainController($log, appConfig, f1QuickPickProxy) {
     var vm = this;
     vm.season = appConfig.season;
     vm.raceTrio = {};
     vm.title = appConfig.appTitle;
     vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
-
-    $log.debug('Current month: ', moment().month());
-
-    /**
-     * determines the index of the upcoming race given the current date
-     * @param races
-     * @returns {number}
-     */
-    var getCurrentRaceIndex = function(races) {
-      var now = appConfig.overrideCurrentDate ? moment(appConfig.overrideCurrentDate) : moment();
-      var currentRaceIndex = -1;
-
-      //locate the next upcoming race given today's date
-      for (var i = 0, len = races.length; i < len; i++) {
-        var raceDate = moment(races[i].race_date);
-
-        if(moment(raceDate).isSameOrAfter(now, 'day')) {
-          $log.debug('i: ', i);
-          currentRaceIndex = i;
-          break;
-        }
-      }
-
-      return currentRaceIndex
-    };
-
-
-    //get the current race calendar and determine the previous, upcoming, and next races
-    f1QuickPickProxy.getRaceCalendar(vm.season).then(
-      function(races) {
-        $log.debug('races1: ', races);
-
-        var currentRaceIndex = getCurrentRaceIndex(races);
-        if (currentRaceIndex == -1) return;
-
-        vm.raceTrio.currentRace = races[currentRaceIndex];
-        vm.raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z');
-
-        //first race of year
-        if (currentRaceIndex == 0) {
-          vm.raceTrio.previousRace = null;
-          vm.raceTrio.nextRace = races[currentRaceIndex + 1];
-        } else if (currentRaceIndex == races.length - 1) {
-          //last race of year
-          vm.raceTrio.previousRace = races[currentRaceIndex - 1];
-          vm.raceTrio.nextRace = null;
-        } else {
-          //has previous and subsequent events
-          vm.raceTrio.previousRace = races[currentRaceIndex - 1];
-          vm.raceTrio.nextRace = races[currentRaceIndex + 1];
-        }
-
-        $log.debug('raceTrio: ', vm.raceTrio);
-
-      },
-      function(err) {
-        $log.error(err);
-      }
-    );
+    vm.raceTrio = f1QuickPickProxy.getRaceTrio();
   }
 
 })();
@@ -905,10 +910,10 @@ function($routeProvider) {
 
 angular.module("f1Quickpick").run(["$templateCache", function($templateCache) {$templateCache.put("raceResults/raceResults.ng.template.html","<div>\n  <b>Race Results for {{rr.year}}/Race {{rr.race}}</b>\n  <form>\n    Year1:<input type=\"number\" ng-model=\"rr.year\" name=\"year\" min=\"1950\" max=\"2015\"/>\n    Race1:<input type=\"number\" ng-model=\"rr.race\" name=\"race\" min=\"1\" max=\"20\"/>\n  </form>\n</div>\n");
 $templateCache.put("components/calendar-list/calendar-list.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      <ul>\n        <li ng-repeat=\"(index, race) in vm.races\">{{race.race_name}}</li>\n      </ul>\n    </div>\n  </div>\n</div>\n");
-$templateCache.put("components/footer/footer.ng.template.html","<div class=\"container\">\n  <div class=\"row footer-row\">\n      {{ vm.placeholderText }}\n  </div>\n</div>\n");
+$templateCache.put("components/footer/footer.ng.template.html","<div class=\"container\">\n  <div class=\"row footer-row\">\n    <div style=\"font-size: 8pt; color: red; text-align: right;\" ng-if=\"vm.overrideCurrentDate\">date override: {{vm.overrideCurrentDate}}</div>\n  </div>\n</div>\n");
 $templateCache.put("components/header/header.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      {{vm.appTitle}}\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"vm.loggedIn\">\n      <div style=\"float: left\"><a href=\"/profile/{{ vm.player }}\">My Profile</a></div>\n      <div class=\"divider\"  style=\"float: right\"></div>\n      <div style=\"float: right\" ng-controller=\"LogoutController as loc\"><a ng-click=\"loc.logout()\" style=\"cursor: pointer\">Logout</a></div>\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"!vm.loggedIn\">\n      &nbsp;\n    </div>\n  </div>\n</div>\n");
 $templateCache.put("components/login/login.ng.template.html","<app-header></app-header>\n\n\n<div class=\"row\">\n  <div class=\"medium-6 medium-offset-3 columns\">\n    <h2>Login</h2>\n    <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n    <form name=\"form\" ng-submit=\"vm.login()\" role=\"form\">\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.username.$dirty && form.username.$error.required }\">\n        <label for=\"username\">Username</label>\n        <input type=\"text\" name=\"username\" id=\"username\" class=\"form-control\" ng-model=\"vm.loginForm.username\" required />\n        <span ng-show=\"form.username.$dirty && form.username.$error.required\" class=\"help-block\">Username is required</span>\n      </div>\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.password.$dirty && form.password.$error.required }\">\n        <label for=\"password\">Password</label>\n        <input type=\"password\" name=\"password\" id=\"password\" class=\"form-control\" ng-model=\"vm.loginForm.password\" required />\n        <span ng-show=\"form.password.$dirty && form.password.$error.required\" class=\"help-block\">Password is required</span>\n      </div>\n      <div class=\"form-actions\">\n        <button type=\"submit\" ng-disabled=\"form.$invalid || vm.disabled\" class=\"btn btn-primary\">Login</button>\n        <img ng-if=\"vm.dataLoading\" src=\"data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==\" />\n        <a href=\"#/register\" class=\"btn btn-link\">Register</a>\n      </div>\n    </form>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
-$templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-4 columns\">\n    <calendar-list></calendar-list>\n  </div>\n  <div class=\"small-8 columns\">\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h2>Current Season: {{vm.season}}</h2>\n        <h5 ng-if=\"vm.overrideCurrentDate\">date override: {{vm.overrideCurrentDate}}</h5>\n      </div>\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Upcoming Race</h3>\n      </div>\n      <div ng-if=\"!vm.raceTrio.currentRace\">\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>No Races Currently Set</h4>\n        </div>\n      </div>\n      <div ng-if=\"vm.raceTrio.currentRace\">\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_name}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
+$templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-4 columns\">\n    <calendar-list></calendar-list>\n  </div>\n  <div class=\"small-8 columns\">\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h2>Current Season: {{vm.season}}</h2>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Upcoming Race</h3>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"!vm.raceTrio.currentRace\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h4>No Races Currently Set</h4>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"vm.raceTrio.currentRace\">\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_name}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>My Picks</h4>\n        </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registration.ng.template.html","<app-header></app-header>\n\n  <div class=\"row\">\n    <div class=\"medium-6 medium-offset-3 columns\">\n      <h2>Register for {{vm.title}}</h2>\n      <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n      <form name=\"registrationForm\" novalidate ng-submit=\"vm.register()\">\n        <div class=\"form-group\" ng-class=\"{ \'has-error\': registrationForm.username.$touched && registrationForm.username.$invalid }\">\n          <input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"Username\" ng-model=\"vm.registerForm.username\" required />\n          <div ng-messages=\"registrationForm.username.$error\" ng-show=\"registrationForm.username.$touched\" role=\"alert\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"password\" placeholder=\"Password\" ng-model=\"vm.registerForm.password\" required>\n          <div ng-messages=\"registrationForm.password.$error\" ng-show=\"registrationForm.password.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"confirmPassword\" placeholder=\"Confirm Password\" ng-model=\"vm.registerForm.confirmPassword\" required compare-to=\"vm.registerForm.password\">\n          <div ng-messages=\"registrationForm.confirmPassword.$error\" ng-show=\"registrationForm.confirmPassword.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div>\n          <button type=\"submit\" class=\"btn btn-default\" ng-disabled=\"registrationForm.$invalid\">Register</button>\n        </div>\n      </form>\n    </div>\n  </div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registrationConfirmation.ng.template.html","<my-header></my-header>\n\n<div class=\"medium-6 medium-offset-3 columns\">\n  <h2>Welcome {{vm.username}}</h2>\n  <h2>Thanks for joining F1 QuickPick!</h2>\n  <h3><a ng-href=\"#/login/{{vm.username}}\">Login</a> to get started!</h3>\n</div>\n");
 $templateCache.put("components/registration/registrationMessages.ng.template.html","<div class=\"messages\">\n  <div ng-message=\"required\">Required</div>\n  <div ng-message=\"minlength\">Too short</div>\n  <div ng-message=\"maxlength\">Too long</div>\n  <div ng-message=\"email\">Invalid email address</div>\n  <div ng-message=\"compareTo\">Must match the previous entry</div>\n</div>\n");}]);

@@ -16,7 +16,7 @@
 
     f1QuickPickProxy.getRaceCalendar(appConfig.season).then(
       function(races) {
-        $log.debug('races: ', races);
+        //$log.debug('races: ', races);
         vm.races = races;
       },
       function(err) {

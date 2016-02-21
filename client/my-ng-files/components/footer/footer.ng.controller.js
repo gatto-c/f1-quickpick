@@ -7,10 +7,11 @@
 
     .controller('appFooterController', appFooterController);
 
-  appFooterController.$inject = [];
+  appFooterController.$inject = ['appConfig'];
 
-  function appFooterController() {
+  function appFooterController(appConfig) {
     var vm = this;
+    vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
     vm.placeholderText = "...";
   }
 })();
