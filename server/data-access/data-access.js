@@ -1,4 +1,5 @@
 var Race = require('../models/race');
+var PlayerPick = require('../models/player-pick');
 
 /**
  * Returns the race calendar data for the specified year
@@ -6,9 +7,15 @@ var Race = require('../models/race');
  * @returns {*}
  */
 module.exports.getRaceCalendar = function*(year){
-  var data = yield Race.find({
+  return yield Race.find({
     year: year
   }).sort('race_number').exec();
+};
 
-  return data;
+module.exports.getPlayerPick = function*(year, raceNumber){
+  console.log('getting Player Pick....');
+  return yield PlayerPick.find({
+    year: year,
+    race_number: raceNumber
+  }).exec();
 };

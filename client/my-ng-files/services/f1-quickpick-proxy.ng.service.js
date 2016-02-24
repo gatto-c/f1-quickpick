@@ -14,35 +14,14 @@
   function f1QuickPickProxy($log, MyHttp, appConfig, moment, AuthService){
     var F1QuickPickProxy = {};
     var getRaceCalendarPromise = null;
+    var getPlayerPickPromise = null;
 
     F1QuickPickProxy.noCall = function() {
       return;
     };
 
     /**
-     * determines the index of the upcoming race given the current date
-     * @param races
-     * @returns {number}
-     */
-    var getCurrentRaceIndex = function(races) {
-      var now = appConfig.overrideCurrentDate ? moment(appConfig.overrideCurrentDate) : moment();
-      var currentRaceIndex = -1;
-
-      //locate the next upcoming race given today's date
-      for (var i = 0, len = races.length; i < len; i++) {
-        var raceDate = moment(races[i].race_date);
-
-        if(moment(raceDate).isSameOrAfter(now, 'day')) {
-          currentRaceIndex = i;
-          break;
-        }
-      }
-
-      return currentRaceIndex
-    };
-
-    /**
-     * Get the current season's race calendar from Ergast
+     * Get the current season's race calendar
      * @returns {*}
      */
     F1QuickPickProxy.getRaceCalendar = function() {
@@ -65,36 +44,29 @@
     };
 
     /**
-     * Calculate and return the last, current (upcoming), and next races
-     * @returns {{}}
+     * Get the player's pick fopr the specified year/race
+     * @param year
+     * @param raceNumber
+     * @returns {*}
      */
-    F1QuickPickProxy.getRaceTrio = function() {
-      var raceTrio = {};
-      F1QuickPickProxy.getRaceCalendar().then(
-        function(races) {
-          var currentRaceIndex = getCurrentRaceIndex(races);
-          if (currentRaceIndex == -1) return;
+    F1QuickPickProxy.getPlayerPick = function(year, raceNumber) {
+      if (!getPlayerPickPromise) {
+        $log.info('f1QuickPickProxy.getPlayerPick: season:', year, ', race:', raceNumber);
 
-          raceTrio.currentRace = races[currentRaceIndex];
-          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z');
+        getPlayerPickPromise = MyHttp
+          .path(appConfig.apiAddress)
+          .path('player/pick')
+          .path(year)
+          .path(raceNumber)
+          .get(null, AuthService.getToken())
+          .catch(function () {
+            getPlayerPickPromise = null
+          });
+      } else {
+        $log.debug('f1QuickPickProxy: getPlayerPick data already loaded');
+      }
 
-          //first race of year
-          if (currentRaceIndex == 0) {
-            raceTrio.previousRace = null;
-            raceTrio.nextRace = races[currentRaceIndex + 1];
-          } else if (currentRaceIndex == races.length - 1) {
-            //last race of year
-            raceTrio.previousRace = races[currentRaceIndex - 1];
-            raceTrio.nextRace = null;
-          } else {
-            //has previous and subsequent events
-            raceTrio.previousRace = races[currentRaceIndex - 1];
-            raceTrio.nextRace = races[currentRaceIndex + 1];
-          }
-        }
-      );
-
-      return raceTrio;
+      return getPlayerPickPromise;
     };
 
     return F1QuickPickProxy;

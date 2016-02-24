@@ -2,6 +2,7 @@ var logger = require('../../logger');
 var co = require('co');
 var Race = require('../models/race');
 var RaceDriver = require('../models/race-driver');
+var PlayerPick = require('../models/player-pick');
 var ergast = require('../data-access/ergast');
 
 /**
@@ -116,3 +117,26 @@ module.exports.loadRaceData = function*(year, race_number) {
   });
 };
 
+module.exports.loadTestPick = function*() {
+  co(function *(){
+    var pick = {
+      year: 2015,
+      race_number: 1,
+      race_name: 'Australian Grand Prix',
+      race_circuit: 'Albert Park Grand Prix Circuit',
+      race_locale: 'Melbourne',
+      race_country: 'Australia',
+      race_date: "2015-03-15T05:00:00.000Z",
+      pick_cutoff_datetime: "2015-03-14T01:00:00.000Z"
+    };
+
+    var pickRecord = new PlayerPick(pick);
+    pickRecord.save(function(err) {
+      if(err) {
+        logger.error(err);
+      } else {
+        logger.info('playerPick saved');
+      }
+    })
+  });
+};

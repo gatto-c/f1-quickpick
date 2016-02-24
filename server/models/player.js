@@ -36,6 +36,20 @@ PlayerSchema.methods.generateJWT = function() {
   }, config.jwtSecret);
 };
 
+PlayerSchema.statics.matchPlayer = function *(username, password) {
+  var user = yield this.findOne({ 'username': username.toLowerCase() }).exec();
+  if (!user) throw new Error('User not found');
+
+  logger.debug('PlayerSchema.statics.matchPlayer2: ', user.username);
+
+  if (user.validPassword(password)) {
+    return user;
+  }
+
+  throw new Error('Password does not match');
+};
+
+
 /**
  * pre save will insert or update player info
  */

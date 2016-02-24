@@ -143,12 +143,14 @@
        * @returns {*}
        */
       function logout() {
+        $log.debug('Auth service: logging out...');
+
         // create a new instance of deferred
         var deferred = $q.defer();
 
         var myPromise = MyHttp
           .path('/logout')
-          .get(false)
+          .get(false, this.getToken())
           .catch(function () {
             myPromise = null
           }

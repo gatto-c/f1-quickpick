@@ -1,47 +1,63 @@
+var LocalStrategy = require('passport-local').Strategy;
+
 const passport = require('koa-passport')
     ,mongoose = require('mongoose')
-    ,Player = require('./server/models/player')
-    ,logger = require('./logger');
+    ,User = require('./server/models/player')
+    ,logger = require('./logger')
+    ,co = require('co');
 
-var user = { id: 1, username: 'user1' };
+//var user = {};
 
 passport.serializeUser(function(user, done) {
   done(null, user.id)
 });
 
 passport.deserializeUser(function(id, done) {
-  done(null, user)
+  User.findById(id, done);
 });
 
-var LocalStrategy = require('passport-local').Strategy;
-passport.use(new LocalStrategy(function(username, password, done) {
-  // check in mongo if a user with username exists or not
-  Player.findOne({ 'username' :  username },
-    function(err, player) {
-      // In case of any error, return using the done method
-      if (err)  return done(err);
+function authLocalUser(username, password, done) {
+  logger.debug('authLocalUser.....');
 
-      logger.log('debug', 'checking user:', username, ', password:', password);
-
-      // Username does not exist, log error & redirect back
-      if (!player){
-        return done(null, false,
-          logger.log('warn', 'User Not Found with username', username));
-      }
-
-      // User exists but wrong password, log the error
-      if (!player.validPassword(password)){
-        return done(null, false,
-          logger.log('warn', 'Invalid Password'));
-      }
-
-      // User and password both match, return user from
-      // done method which will be treated like success
-      logger.debug('user authorized: ', username);
-      return done(null, player);
+  co(function*() {
+    try {
+      return yield User.matchPlayer(username, password);
+    } catch (ex) {
+      return null;
     }
-  );
-}));
+  }).then(done.bind(null, null), done);
+}
+
+passport.use(new LocalStrategy(authLocalUser));
+
+//passport.use(new LocalStrategy(function(username, password, done) {
+//  // check in mongo if a user with username exists or not
+//  Player.findOne({ 'username' :  username },
+//    function(err, user) {
+//      // In case of any error, return using the done method
+//      if (err)  return done(err);
+//
+//      logger.log('debug', 'checking user:', username, ', password:', password);
+//
+//      // Username does not exist, log error & redirect back
+//      if (!user){
+//        return done(null, false,
+//          logger.log('warn', 'User Not Found with username', username));
+//      }
+//
+//      // User exists but wrong password, log the error
+//      if (!user.validPassword(password)){
+//        return done(null, false,
+//          logger.log('warn', 'Invalid Password'));
+//      }
+//
+//      // User and password both match, return user from
+//      // done method which will be treated like success
+//      logger.debug('user authorized: ', username);
+//      return done(null, user);
+//    }
+//  );
+//}));
 
 //var FacebookStrategy = require('passport-facebook').Strategy;
 //passport.use(new FacebookStrategy({
