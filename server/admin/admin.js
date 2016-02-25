@@ -4,6 +4,7 @@ var Race = require('../models/race');
 var RaceDriver = require('../models/race-driver');
 var PlayerPick = require('../models/player-pick');
 var ergast = require('../data-access/ergast');
+var mongoose = require('mongoose');
 
 /**
  * Acquire and save race calendar data for a given year
@@ -119,7 +120,11 @@ module.exports.loadRaceData = function*(year, race_number) {
 
 module.exports.loadTestPick = function*() {
   co(function *(){
+    logger.debug('Loading test pick ...');
+    var id = mongoose.Types.ObjectId("569aef0513c287b61763f4e1");
+    logger.debug('Loading test pick, id:', id);
     var pick = {
+      player: id,
       year: 2015,
       race_number: 1,
       race_name: 'Australian Grand Prix',

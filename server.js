@@ -16,6 +16,7 @@ module.exports.startServer = function(config) {
   const
     koa = require('koa'),
     koaRender = require('koa-render'),
+    favicon = require('koa-favicon'),
     bodyParser = require('koa-bodyparser'),
     logger = require('./logger'),
     session = require('koa-generic-session'),
@@ -37,7 +38,7 @@ module.exports.startServer = function(config) {
     id = getIdentity(),
     FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-  //console.log('Starting:', id);
+  console.log('Starting:', id);
   //console.log('Starting with config:', config);
 
   app.keys = ['6AD7BC9C-F6B5-4384-A892-43D3BE57D89F'];
@@ -47,6 +48,8 @@ module.exports.startServer = function(config) {
     rolling: true,
     cookie: {maxage: FIFTEEN_MINUTES}
   }));
+
+  app.use(favicon(__dirname + '/client/favicon.ico'));
 
   app.use(function*(next){
     yield next;
@@ -98,6 +101,17 @@ module.exports.startServer = function(config) {
 
   // Middleware below this line is only reached if JWT token is valid
   app.use(jwt({ secret: config.jwtSecret }));
+
+  // Require authentication for now
+  app.use(function*(next) {
+    var ctx = this;
+    if (ctx.isAuthenticated()) {
+      yield next;
+    } else {
+      logger.warn('User not authenticated');
+      yield ctx.redirect('/')
+    }
+  });
 
   // secured routes requiring authentication
   app.use(routes.secureRouteMiddleware(passport));

@@ -930,7 +930,7 @@ function($routeProvider) {
     vm.title = appConfig.appTitle;
     vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
     vm.raceTrio = raceManager.getRaceTrio();
-    vm.currentPick = {};
+    vm.currentPick = null;
 
     f1QuickPickProxy.getPlayerPick(appConfig.season, 1).then(
       function(pick) {

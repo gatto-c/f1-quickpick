@@ -66,6 +66,14 @@ module.exports.anonymousRouteMiddleware = function(passport) {
     }
   });
 
+  /**
+   * handle logout get
+   */
+  routes.get('/logout', function*(next) {
+    this.logout();
+    this.redirect('/');
+  });
+
   return routes.middleware();
 };
 
@@ -97,9 +105,10 @@ module.exports.secureRouteMiddleware = function(passport) {
    */
   routes.get('/player/pick/:year/:raceNumber', function*(next) {
     var ctx = this;
-    logger.debug('Received get on player/pick: ', ctx.passport.user.email);
+    //logger.debug('Received get on player/pick: ctx.passport.user', ctx.passport.user.email);
+    //logger.debug('Received get on player/pick: passport.user', ctx.isAuthenticated());
     ctx.type = "application/json";
-    ctx.body = yield dataAccess.getPlayerPick(ctx.params.year, ctx.params.raceNumber);
+    ctx.body = yield dataAccess.getPlayerPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
   });
 
   /**
