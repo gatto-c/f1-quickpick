@@ -56,7 +56,6 @@
       dataOnly = dataOnly !== false; //defaults to true
 
       var url = this.getUrl();
-      $log.debug('Post response0');
 
       return $http.post(url, objectToPost).
         then(function(response){
@@ -77,11 +76,15 @@
      * @param dataOnly - will return only the data object of the response object if true
      * @returns {*|{get}}
      */
-    HttpRequest.prototype.get = function(dataOnly) {
+    HttpRequest.prototype.get = function(dataOnly, token) {
       dataOnly = dataOnly !== false; //defaults to true
 
       var url = this.getUrl();
-      return $http.get(url).
+
+      //if a token is provided then specify an auth header
+      var headers = token ?  {'Authorization': 'bearer ' + token} : {};
+
+      return $http.get(url, {headers: headers}).
         then(function(response){
           if(dataOnly) {
             return response.data;

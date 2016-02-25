@@ -23,7 +23,8 @@ module.exports.startServer = function(config) {
     mongo = require('koa-mongo'),
     mongoose = require('mongoose'),
     passport = require('koa-passport'),
-    jwt = require('koa-jwt');
+    jwt = require('koa-jwt'),
+    admin = require('admin/admin');
 
   // integration
   const
@@ -36,7 +37,8 @@ module.exports.startServer = function(config) {
     id = getIdentity(),
     FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-  console.log('Starting:', id);
+  //console.log('Starting:', id);
+  //console.log('Starting with config:', config);
 
   app.keys = ['6AD7BC9C-F6B5-4384-A892-43D3BE57D89F'];
   app.use(session({
@@ -53,8 +55,19 @@ module.exports.startServer = function(config) {
     }
   });
 
-  //use jwt token if available - allow all requests to be processed but require auth downstream
-  //app.use(jwt({ secret: config.jwtSecret, passthrough: true }));
+  // Custom 401 handling if you don't want to expose koa-jwt errors to users
+  app.use(function *(next){
+    try {
+      yield next;
+    } catch (err) {
+      if (401 == err.status) {
+        this.status = 401;
+        this.body = 'Protected resource, use Authorization header to get access\n';
+      } else {
+        throw err;
+      }
+    }
+  });
 
   // establish the server-side templates
   app.use(koaRender('./server/server-side-views', {
@@ -62,16 +75,8 @@ module.exports.startServer = function(config) {
     cache: false
   }));
 
-  // todo: use mongo
+  //// connect to mongoose erm
   mongoose.connect(config.mongoUri);
-  //app.use(mongo({
-  //    uri: config.mongoUri,
-  //    max: 100,
-  //    min: 1,
-  //    timeout: 30000,
-  //    log: false
-  //}));
-
 
   // body parser
   app.use(bodyParser());
@@ -81,11 +86,21 @@ module.exports.startServer = function(config) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  //admin.loadRaceData(2015, 19).next();
+  //admin.loadSeasonRaces(2011).next();
+  //admin.loadTestPick().next();
+
   // Anonymous routes (static files)
   app.use(serveStaticContent(__dirname, './client'));
 
   // anonymous API calls
   app.use(routes.anonymousRouteMiddleware(passport));
+
+  // Middleware below this line is only reached if JWT token is valid
+  app.use(jwt({ secret: config.jwtSecret }));
+
+  // secured routes requiring authentication
+  app.use(routes.secureRouteMiddleware(passport));
 
   // It's go time
   app.listen(config.port);

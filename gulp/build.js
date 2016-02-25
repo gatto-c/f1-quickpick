@@ -11,6 +11,8 @@ var sass = require('gulp-sass');
 var eslint = require('gulp-eslint');
 var size = require('gulp-size');
 var conf = require('./conf');
+var ngConstant = require('gulp-ng-constant');
+var argv = require('yargs').argv;
 
 var $ = require('gulp-load-plugins')({
   pattern: ['gulp-*', 'main-bower-files', 'uglify-save-license', 'del']
@@ -97,6 +99,15 @@ gulp.task('other', function () {
     .pipe(gulp.dest(path.join(conf.paths.dist, '/')));
 });
 
+var environment = argv.env || 'development';
+
+gulp.task('env-config', function() {
+  return gulp.src('config/' + environment + '.json')
+    .pipe(ngConstant({name: 'f1Quickpick', deps: false}))
+    .pipe(concat('app.ng.config.js'))
+    .pipe(gulp.dest('client'));
+});
+
 /**
 * ng-templates
 * Assembles all the html templates and
@@ -122,7 +133,7 @@ gulp.task('assemble-files',['ng-templates'],function(){
   return gulp.src([
     'client/my-ng-files/**/*.ng.application.js',
     'client/my-ng-files/**/*.ng.constant.js',
-    'client/my-ng-files/**/*.ng.config.js',
+    'client/**/*.ng.config.js',
     'client/my-ng-files/**/*.ng.application.factory.js',
     'client/my-ng-files/**/*.ng.provider.js',
     'client/my-ng-files/**/*.proxy.ng.factory.js',
@@ -173,6 +184,6 @@ gulp.task('lint', function() {
     .pipe(size());
 });
 
-gulp.task('build', ['ng-templates', 'assemble-files', 'clean', 'sass', 'lint']);
+gulp.task('build', ['env-config', 'ng-templates', 'assemble-files', 'clean', 'sass', 'lint']);
 
 //gulp.task('build', ['html', 'fonts', 'other']);

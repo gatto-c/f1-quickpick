@@ -3,7 +3,7 @@
 const cluster = require('cluster')
   , os = require('os')
   , _  = require('lodash')
-  , config  = require('./config.js')[process.env['F1QuickPick_ENV']] || require('./config.js')['development']
+  , config  = require('./config.js').getConfig()
   , server = require('./server.js');
 
 let startServer = function() {
@@ -35,7 +35,7 @@ let startMultiCore = function() {
   }
 };
 
-console.log('Starting: ', process.env['FRT_ENV'] || 'development');
+console.log('Starting: ', process.env['F1QUICKPICK_ENV'] || 'development');
 if(config.singleCore || _.isUndefined(config.singleCore) || _.isNull(config.singleCore)) {
   process.env['processIdentity'] = 'single core';
   startServer();

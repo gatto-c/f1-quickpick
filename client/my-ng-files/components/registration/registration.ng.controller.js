@@ -8,11 +8,11 @@
     .controller('RegistrationController', RegistrationController);
 
   //inject dependencies
-  RegistrationController.$inject = ['$scope', '$location', '$log', 'AuthService', 'appTitle'];
+  RegistrationController.$inject = ['$scope', '$location', '$log', 'AuthService', 'appConfig'];
 
-  function RegistrationController($scope, $location, $log, AuthService, appTitle) {
+  function RegistrationController($scope, $location, $log, AuthService, appConfig) {
     var vm = this;
-    vm.title = appTitle;
+    vm.title = appConfig.appTitle;
 
     vm.registerForm = {
       username: "",

@@ -5,8 +5,13 @@ const
   logger = require('../../logger'),
   Player = require('../models/player'),
   jwt = require('koa-jwt'),
-  config = require('../../config.js')[process.env['F1QuickPick_ENV']] || require('../../config.js')['development'];
+  config = require('../../config.js')[process.env['F1QuickPick_ENV']] || require('../../config.js')['development'],
+  dataAccess = require('../data-access/data-access');
 
+/**
+ * Anonymous routes requiring no authentication
+ * @param passport
+ */
 module.exports.anonymousRouteMiddleware = function(passport) {
   const
   routes = new Router(),
@@ -20,6 +25,8 @@ module.exports.anonymousRouteMiddleware = function(passport) {
    */
   routes.post('/login', function*(next) {
     var ctx = this;
+
+
     yield passport.authenticate('local', function*(err, player, info) {
       if (err) throw err;
       if (player === false) {
@@ -57,6 +64,42 @@ module.exports.anonymousRouteMiddleware = function(passport) {
       ctx.body = { success: false };
       ctx.body = {}
     }
+  });
+
+  return routes.middleware();
+};
+
+
+/**
+ * Secure routes requiring user authentication
+ * @param passport
+ */
+module.exports.secureRouteMiddleware = function(passport) {
+  const routes = new Router();
+
+  routes.get('/user/:id', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = "{user: 1}";
+  });
+
+  /**
+   * get the race calendar data for the specified year
+   */
+  routes.get('/raceCalendar/:year', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.getRaceCalendar(ctx.params.year);
+  });
+
+  /**
+   * get the player pick specified by the season and race number
+   */
+  routes.get('/player/pick/:year/:raceNumber', function*(next) {
+    var ctx = this;
+    logger.debug('Received get on player/pick: ', ctx.passport.user.email);
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.getPlayerPick(ctx.params.year, ctx.params.raceNumber);
   });
 
   /**

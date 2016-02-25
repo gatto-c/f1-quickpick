@@ -8,6 +8,7 @@
   "dependencies": {
     "app-module-path": "^1.0.5",
     "bcrypt": "^0.8.5",
+    "co": "^4.6.0",
     "koa": "^1.1.2",
     "koa-bodyparser": "^2.0.1",
     "koa-generic-session": "^1.10.1",
@@ -16,10 +17,15 @@
     "koa-mongo": "^0.5.0",
     "koa-passport": "^1.2.0",
     "koa-render": "^0.2.1",
+    "koa-request": "^1.0.0",
     "koa-router": "^5.3.0",
     "koa-send": "^3.1.0",
+    "lodash": "^3.10.1",
     "mongoose": "^4.3.6",
     "passport-local": "^1.0.0",
+    "q": "^1.4.1",
+    "q-io": "^1.13.2",
+    "request-promise": "^2.0.0",
     "swig": "^1.4.2",
     "winston": "^2.1.1"
   },
@@ -48,6 +54,7 @@
     "gulp-load-plugins": "~0.10.0",
     "gulp-minify-css": "~1.2.1",
     "gulp-minify-html": "~1.0.4",
+    "gulp-ng-constant": "^1.1.0",
     "gulp-nodemon": "^2.0.6",
     "gulp-protractor": "~1.0.0",
     "gulp-rename": "~1.2.2",
@@ -71,12 +78,14 @@
     "main-bower-files": "~2.9.0",
     "ng-annotate-loader": "0.0.10",
     "nodemon": "^1.8.1",
+    "promise": "^7.1.1",
     "rimraf": "^2.5.1",
     "traceur-loader": "~0.6.3",
     "uglify-save-license": "~0.4.1",
     "webpack-stream": "~2.1.1",
     "wiredep": "~2.2.2",
-    "wrench": "~1.5.8"
+    "wrench": "~1.5.8",
+    "yargs": "^3.32.0"
   },
   "engines": {
     "node": ">=0.10.0"

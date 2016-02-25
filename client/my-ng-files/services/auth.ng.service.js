@@ -12,7 +12,7 @@
     .service('AuthService', AuthService);
 
     // inject dependencies
-    AuthService.$inject = ['$q', '$log', '$window', 'MyHttp', 'lsTokenName'];
+    AuthService.$inject = ['$q', '$log', '$window', 'MyHttp', 'appConfig'];
 
 
     /**
@@ -24,8 +24,8 @@
      * @returns {{isLoggedIn: isLoggedIn, currentUser: currentUser, saveToken: saveToken, getToken: getToken, login: login, logout: logout, register: register}}
      * @constructor
      */
-    function AuthService($q, $log, $window, MyHttp, lsTokenName) {
-      $log.debug('AuthService Initializing...');
+    function AuthService($q, $log, $window, MyHttp, appConfig) {
+      //$log.debug('AuthService Initializing...');
 
       function isLoggedIn() {
         var token = getToken();
@@ -51,11 +51,11 @@
       }
 
       function saveToken(token) {
-        $window.localStorage[lsTokenName] = token;
+        $window.localStorage[appConfig.lsTokenName] = token;
       }
 
       function getToken() {
-        return $window.localStorage[lsTokenName];
+        return $window.localStorage[appConfig.lsTokenName];
       }
 
       /**
@@ -102,7 +102,7 @@
        * @returns {*}
        */
       function register(username, password) {
-        $log.debug('AuthService: register....');
+        //$log.debug('AuthService: register....');
 
         // create a new instance of deferred
         var deferred = $q.defer();
@@ -118,7 +118,7 @@
         );
 
         myPromise.then(function(response) {
-          $log.debug('registration response: ', response);
+          //$log.debug('registration response: ', response);
 
           if(response && response.status == 200) {
             $log.debug('AuthService: user registered: response: ', response);
@@ -143,22 +143,24 @@
        * @returns {*}
        */
       function logout() {
+        $log.debug('Auth service: logging out...');
+
         // create a new instance of deferred
         var deferred = $q.defer();
 
         var myPromise = MyHttp
           .path('/logout')
-          .get(false)
+          .get(false, this.getToken())
           .catch(function () {
             myPromise = null
           }
         );
 
         myPromise.then(function(data) {
-          $log.debug('AuthService: data: ', data.status);
+          //$log.debug('AuthService: data: ', data.status);
           if(data && data.status == 200) {
             $log.debug('Successfully logged out');
-            $window.localStorage.removeItem(lsTokenName);
+            $window.localStorage.removeItem(appConfig.lsTokenName);
             deferred.resolve();
           } else {
             $log.error('Logout error: ', data);

@@ -7,14 +7,27 @@
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appTitle'];
+  MainController.$inject = ['$log', 'appConfig', '_', 'raceManager', 'f1QuickPickProxy'];
 
-  function MainController($log, appTitle) {
+  function MainController($log, appConfig, _, raceManager, f1QuickPickProxy) {
     var vm = this;
+    vm.season = appConfig.season;
+    vm.raceTrio = {};
+    vm.title = appConfig.appTitle;
+    vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
+    vm.raceTrio = raceManager.getRaceTrio();
+    vm.currentPick = {};
 
-    vm.selected_season = 2016;
+    f1QuickPickProxy.getPlayerPick(appConfig.season, 1).then(
+      function(pick) {
+        if(_.isEmpty(pick)) {
+          $log.debug('MainController - no pick located for', appConfig.season, '/1');
+        } else {
+          vm.currentPick = pick;
+          $log.debug('MainController - pick:', pick);
+        }
+      }
+    );
 
-    vm.title = appTitle;
   }
-
 })();
