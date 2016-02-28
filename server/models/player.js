@@ -24,11 +24,12 @@ PlayerSchema.methods.validPassword = function(password) {
 };
 
 PlayerSchema.methods.generateJWT = function() {
-  // set expiration to 60 days
+  //calculate expiry date for the jwt
   var today = new Date();
   var exp = new Date(today);
-  exp.setDate(today.getDate() + 60);
+  exp.setMinutes (exp.getMinutes() + config.jwtExpiryMinutes);
 
+  //sign the jwt and include user's id, name, and expiry in token's payload
   return jwt.sign({
     _id: this._id,
     username: this.username,

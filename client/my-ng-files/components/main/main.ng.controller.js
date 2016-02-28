@@ -20,6 +20,7 @@
 
     f1QuickPickProxy.getPlayerPick(appConfig.season, 1).then(
       function(pick) {
+        $log.debug('>>>>>getting player pick');
         if(_.isEmpty(pick)) {
           $log.debug('MainController - no pick located for', appConfig.season, '/1');
         } else {

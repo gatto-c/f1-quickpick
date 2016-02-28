@@ -50,21 +50,17 @@
      * @returns {*}
      */
     F1QuickPickProxy.getPlayerPick = function(year, raceNumber) {
-      if (!getPlayerPickPromise) {
-        $log.info('f1QuickPickProxy.getPlayerPick: season:', year, ', race:', raceNumber);
+      $log.info('f1QuickPickProxy.getPlayerPick: season:', year, ', race:', raceNumber);
 
-        getPlayerPickPromise = MyHttp
-          .path(appConfig.apiAddress)
-          .path('player/pick')
-          .path(year)
-          .path(raceNumber)
-          .get(null, AuthService.getToken())
-          .catch(function () {
-            getPlayerPickPromise = null
-          });
-      } else {
-        $log.debug('f1QuickPickProxy: getPlayerPick data already loaded');
-      }
+      getPlayerPickPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('player/pick')
+        .path(year)
+        .path(raceNumber)
+        .get(null, AuthService.getToken())
+        .catch(function () {
+          getPlayerPickPromise = null
+        });
 
       return getPlayerPickPromise;
     };

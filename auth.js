@@ -21,8 +21,6 @@ passport.deserializeUser(function(id, done) {
  * @param done
  */
 function authLocalUser(username, password, done) {
-  logger.debug('authLocalUser.....');
-
   co(function*() {
     try {
       return yield User.matchPlayer(username, password);

@@ -25,8 +25,6 @@ module.exports.anonymousRouteMiddleware = function(passport) {
    */
   routes.post('/login', function*(next) {
     var ctx = this;
-
-
     yield passport.authenticate('local', function*(err, player, info) {
       if (err) throw err;
       if (player === false) {
@@ -35,7 +33,6 @@ module.exports.anonymousRouteMiddleware = function(passport) {
       } else {
         yield ctx.login(player);
         ctx.status = 200;
-        //ctx.body = { success: true }
         ctx.body = {success: true, token: player.generateJWT()};
       }
     }).call(this, next)
@@ -105,8 +102,7 @@ module.exports.secureRouteMiddleware = function(passport) {
    */
   routes.get('/player/pick/:year/:raceNumber', function*(next) {
     var ctx = this;
-    //logger.debug('Received get on player/pick: ctx.passport.user', ctx.passport.user.email);
-    //logger.debug('Received get on player/pick: passport.user', ctx.isAuthenticated());
+    logger.debug('Received get on player/pick: passport.user', ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
     ctx.type = "application/json";
     ctx.body = yield dataAccess.getPlayerPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
   });

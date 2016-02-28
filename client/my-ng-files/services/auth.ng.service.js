@@ -33,8 +33,12 @@
         $log.debug('isLoggedIn called, token is:', token);
 
         if(token){
-          //var payload = JSON.parse($window.atob(token.split('.')[1]));
+          //var header = angular.fromJson($window.atob(token.split('.')[0]));
           var payload = angular.fromJson($window.atob(token.split('.')[1]));
+          //$log.debug('header:', header);
+          //$log.debug('payload:', payload);
+          $log.debug('>>>>>payload.exp:', payload.exp, ', date.now:', (Date.now() / 1000), ', returning: ', (payload.exp > Date.now() / 1000));
+
           return payload.exp > Date.now() / 1000;
         } else {
           return false;

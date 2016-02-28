@@ -39,14 +39,14 @@ module.exports.startServer = function(config) {
     FIFTEEN_MINUTES = 15 * 60 * 1000;
 
   console.log('Starting:', id);
-  //console.log('Starting with config:', config);
+  console.log('Config:', config);
 
   app.keys = ['6AD7BC9C-F6B5-4384-A892-43D3BE57D89F'];
   app.use(session({
     key: 'Pick10',
     store: new mongoStore({url: config.mongoUri}),
     rolling: true,
-    cookie: {maxage: FIFTEEN_MINUTES}
+    cookie: {maxage: (config.jwtExpiryMinutes * 60 * 1000)}
   }));
 
   app.use(favicon(__dirname + '/client/favicon.ico'));
@@ -99,9 +99,6 @@ module.exports.startServer = function(config) {
   // anonymous API calls
   app.use(routes.anonymousRouteMiddleware(passport));
 
-  // Middleware below this line is only reached if JWT token is valid
-  app.use(jwt({ secret: config.jwtSecret }));
-
   // Require authentication for now
   app.use(function*(next) {
     var ctx = this;
@@ -109,9 +106,12 @@ module.exports.startServer = function(config) {
       yield next;
     } else {
       logger.warn('User not authenticated');
-      yield ctx.redirect('/')
+      ctx.redirect('#/login');
     }
   });
+
+  // Middleware below this line is only reached if JWT token is valid
+  app.use(jwt({secret: config.jwtSecret}));
 
   // secured routes requiring authentication
   app.use(routes.secureRouteMiddleware(passport));
