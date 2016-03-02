@@ -37,7 +37,7 @@
           var payload = angular.fromJson($window.atob(token.split('.')[1]));
           //$log.debug('header:', header);
           //$log.debug('payload:', payload);
-          $log.debug('>>>>>payload.exp:', payload.exp, ', date.now:', (Date.now() / 1000), ', returning: ', (payload.exp > Date.now() / 1000));
+          //$log.debug('>>>>>payload.exp:', payload.exp, ', date.now:', (Date.now() / 1000), ', returning: ', (payload.exp > Date.now() / 1000));
 
           return payload.exp > Date.now() / 1000;
         } else {

@@ -98,11 +98,19 @@ module.exports.secureRouteMiddleware = function(passport) {
   });
 
   /**
+   * determine if player has pick specified by the season and race number
+   */
+  routes.get('/player/hasPick/:year/:raceNumber', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.playerHasPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
+  });
+
+  /**
    * get the player pick specified by the season and race number
    */
   routes.get('/player/pick/:year/:raceNumber', function*(next) {
     var ctx = this;
-    logger.debug('Received get on player/pick: passport.user', ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
     ctx.type = "application/json";
     ctx.body = yield dataAccess.getPlayerPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
   });

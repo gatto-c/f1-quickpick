@@ -13,10 +13,30 @@ module.exports.getRaceCalendar = function*(year){
   }).sort('race_number').exec();
 };
 
-module.exports.getPlayerPick = function*(playerId, year, raceNumber){
+module.exports.playerHasPick = function*(playerId, year, raceNumber){
+  //convert playerId into mongoose objectId
   var playerObjectId = mongoose.Types.ObjectId(playerId);
 
-  console.log('Getting pick for player id:', playerId);
+  var count = yield PlayerPick.count({
+    player: playerObjectId,
+    year: year,
+    race_number: raceNumber
+  }).exec();
+
+  return (count == 1);
+};
+
+
+/**
+ * Returns pick for user in the specified year/race#
+ * @param playerId
+ * @param year
+ * @param raceNumber
+ * @returns {*}
+ */
+module.exports.getPlayerPick = function*(playerId, year, raceNumber){
+  //convert playerId into mongoose objectId
+  var playerObjectId = mongoose.Types.ObjectId(playerId);
 
   return yield PlayerPick.find({
     player: playerObjectId,

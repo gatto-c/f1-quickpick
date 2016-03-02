@@ -43,6 +43,23 @@
       return getRaceCalendarPromise;
     };
 
+    F1QuickPickProxy.playerHasPick = function(year, raceNumber) {
+      var myPromise;
+      $log.info('f1QuickPickProxy.playerHasPick: season:', year, ', race:', raceNumber);
+
+      myPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('player/hasPick')
+        .path(year)
+        .path(raceNumber)
+        .get(null, AuthService.getToken())
+        .catch(function () {
+          getPlayerPickPromise = null
+        });
+
+      return myPromise;
+    };
+
     /**
      * Get the player's pick fopr the specified year/race
      * @param year
