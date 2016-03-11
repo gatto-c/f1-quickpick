@@ -18,3 +18,16 @@ $primary-color: #111;
 .footer-row {
   background-color: transparent;
 }
+
+.pick-position-indicator {
+  width:35px;
+  text-align: right;
+  display: inline-block;
+}
+
+.pick-selector {
+  width:225px;
+  display: inline-block;
+  margin-left: 7px;
+  font-size: 14px;
+}

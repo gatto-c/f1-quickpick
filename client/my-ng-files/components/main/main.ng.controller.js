@@ -22,7 +22,7 @@
     raceManager.getRaceTrio().then(function(raceTrio){
       vm.raceTrio = raceTrio;
       $log.debug('raceTrio.currentRace:', raceTrio.currentRace);
-      
+
       f1QuickPickProxy.playerHasPick(appConfig.season, raceTrio.currentRace.race_number).then(
         function(hasPick) {
           $log.debug('MainController - Player hasPick:', hasPick);

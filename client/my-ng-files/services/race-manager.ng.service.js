@@ -46,8 +46,8 @@
      */
     RaceManager.getRaceTrio = function() {
       var myPromise = Q.defer();
-
       var raceTrio = {};
+
       f1QuickPickProxy.getRaceCalendar().then(
         function(races) {
           var currentRaceIndex = getCurrentRaceIndex(races);
@@ -71,6 +71,25 @@
           }
 
           myPromise.resolve(raceTrio)
+        }
+      );
+
+      return myPromise.promise;
+    };
+
+    /**
+     * Calls proxy service to get race details for specified year/race#
+     * @param year
+     * @param raceNumber
+     * @returns {*}
+     */
+    RaceManager.getRaceDetails = function(year, raceNumber) {
+      var myPromise = Q.defer();
+      var raceDetails = {};
+
+      f1QuickPickProxy.getRaceDetails(year, raceNumber).then(
+        function(raceDetails) {
+          myPromise.resolve(raceDetails)
         }
       );
 

@@ -116,6 +116,15 @@ module.exports.secureRouteMiddleware = function(passport) {
   });
 
   /**
+   * get the race details for the specified season/race#
+   */
+  routes.get('/raceDetails/:year/:raceNumber', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.getRaceDetails(ctx.params.year, ctx.params.raceNumber);
+  });
+
+  /**
    * handle logout get
    */
   routes.get('/logout', function*(next) {

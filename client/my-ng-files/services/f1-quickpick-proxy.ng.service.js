@@ -14,10 +14,8 @@
   function f1QuickPickProxy($log, MyHttp, appConfig, moment, AuthService){
     var F1QuickPickProxy = {};
     var getRaceCalendarPromise = null;
-    var getPlayerPickPromise = null;
 
     F1QuickPickProxy.noCall = function() {
-      return;
     };
 
     /**
@@ -43,6 +41,12 @@
       return getRaceCalendarPromise;
     };
 
+    /**
+     * Determine if the logged in player has a pick for the specified year/race#
+     * @param year
+     * @param raceNumber
+     * @returns {*}
+     */
     F1QuickPickProxy.playerHasPick = function(year, raceNumber) {
       var myPromise;
       $log.info('f1QuickPickProxy.playerHasPick: season:', year, ', race:', raceNumber);
@@ -54,7 +58,7 @@
         .path(raceNumber)
         .get(null, AuthService.getToken())
         .catch(function () {
-          getPlayerPickPromise = null
+          myPromise = null
         });
 
       return myPromise;
@@ -67,19 +71,37 @@
      * @returns {*}
      */
     F1QuickPickProxy.getPlayerPick = function(year, raceNumber) {
-      $log.info('f1QuickPickProxy.getPlayerPick: season:', year, ', race:', raceNumber);
+      var myPromise;
+      $log.debug('f1QuickPickProxy.getPlayerPick: season:', year, ', race:', raceNumber);
 
-      getPlayerPickPromise = MyHttp
+      myPromise = MyHttp
         .path(appConfig.apiAddress)
         .path('player/pick')
         .path(year)
         .path(raceNumber)
         .get(null, AuthService.getToken())
         .catch(function () {
-          getPlayerPickPromise = null
+          myPromise = null
         });
 
-      return getPlayerPickPromise;
+      return myPromise;
+    };
+
+    F1QuickPickProxy.getRaceDetails = function(year, raceNumber) {
+      var myPromise;
+      $log.debug('f1QuickPickProxy.getRaceDetails: season:', year, ', race:', raceNumber);
+
+      myPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('raceDetails')
+        .path(year)
+        .path(raceNumber)
+        .get(null, AuthService.getToken())
+        .catch(function () {
+          myPromise = null
+        });
+
+      return myPromise;
     };
 
     return F1QuickPickProxy;

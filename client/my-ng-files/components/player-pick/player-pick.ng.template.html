@@ -2,7 +2,18 @@
 
 <div class="row" style="margin-top: 18px;">
   <div class="small-12 columns">
-    {{ vm.test }}
+    Select you picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}
+  </div>
+</div>
+
+<div data-ng-repeat="pick in [1,2,3,4,5,6,7,8,9,10]">
+  <div class="row" style="margin-top: 3px;">
+    <div class="small-12 columns">
+      <div class="pick-position-indicator">{{pick}}</div>
+      <select class="pick-selector" name="pickSelector{{pick}}" id="pickSelector{{pick}}" ng-model="vm.playerPicks[pick-1]" ng-change="vm.pickSelected()">
+        <option ng-repeat="driver in vm.raceDetails" value="{{driver.driver_id}}">{{driver.driver_name}}</option>
+      </select>
+    </div>
   </div>
 </div>
 
