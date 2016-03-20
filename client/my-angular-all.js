@@ -872,29 +872,6 @@ function($routeProvider) {
 
   angular
 
-    .module("f1Quickpick")
-
-    .controller('appHeaderController', appHeaderController);
-
-  appHeaderController.$inject = ['$log', 'appConfig', 'AuthService'];
-
-    function appHeaderController($log, appConfig, AuthService) {
-      var vm = this;
-      vm.appTitle = appConfig.appTitle;
-      vm.loggedIn = AuthService.isLoggedIn();
-      vm.player = AuthService.currentUser();
-    }
-})();
-}());
-
-;(function() {
-"use strict";
-
-(function() {
-  'use strict';
-
-  angular
-
     .module('f1Quickpick')
 
     .controller('LoginController', LoginController);
@@ -940,6 +917,29 @@ function($routeProvider) {
             vm.disabled = false;
           });
       };
+    }
+})();
+}());
+
+;(function() {
+"use strict";
+
+(function() {
+  'use strict';
+
+  angular
+
+    .module("f1Quickpick")
+
+    .controller('appHeaderController', appHeaderController);
+
+  appHeaderController.$inject = ['$log', 'appConfig', 'AuthService'];
+
+    function appHeaderController($log, appConfig, AuthService) {
+      var vm = this;
+      vm.appTitle = appConfig.appTitle;
+      vm.loggedIn = AuthService.isLoggedIn();
+      vm.player = AuthService.currentUser();
     }
 })();
 }());
@@ -1027,9 +1027,9 @@ function($routeProvider) {
 
     .controller('PlayerPickController', PlayerPickController);
 
-  PlayerPickController.$inject = ['$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
+  PlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
 
-  function PlayerPickController($log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+  function PlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
     var vm = this;
     vm.test = 'test';
     vm.playerpick = {};
@@ -1037,35 +1037,42 @@ function($routeProvider) {
     vm.raceDetails = {};
     vm.currentPick = {};
 
-    vm.playerPicks = [null, null, null, null, null, null, null, null, null, null];
+    vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
+
+    var defaultPick = {};
+    defaultPick.driver_id = "0";
+    defaultPick.driver_name = "- pick driver -";
 
     vm.pickSelected = function() {
-      $log.debug(vm.playerPicks);
+      $log.debug('playerPicks:', vm.playerPicks);
     };
 
     raceManager.getRaceTrio().then(function(raceTrio){
       vm.raceTrio = raceTrio;
 
       raceManager.getRaceDetails(2015, 1).then(function(raceDetails) {
+        raceDetails.unshift(defaultPick);
         vm.raceDetails = raceDetails;
         $log.debug('race:', vm.raceTrio.currentRace);
         $log.debug('raceDetails:', raceDetails);
+        $log.debug('playerPicks:', vm.playerPicks);
+        $scope.$apply();
       });
 
 
-      //if the player has a pick, then retrieve it from db now
-      if ($routeParams.hasplayerpick == true) {
-        f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
-          function(pick) {
-            if(_.isEmpty(pick)) {
-              $log.debug('PlayerPickController - no pick located for season:', appConfig.season, ', race:',raceTrio.currentRace.race_number);
-            } else {
-              vm.currentPick = pick;
-              $log.debug('PlayerPickController - pick:', pick);
-            }
-          }
-        );
-      }
+      ////if the player has a pick, then retrieve it from db now
+      //if ($routeParams.hasplayerpick == true) {
+      //  f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
+      //    function(pick) {
+      //      if(_.isEmpty(pick)) {
+      //        $log.debug('PlayerPickController - no pick located for season:', appConfig.season, ', race:',raceTrio.currentRace.race_number);
+      //      } else {
+      //        vm.currentPick = pick;
+      //        $log.debug('PlayerPickController - pick:', pick);
+      //      }
+      //    }
+      //  );
+      //}
     });
 
 
@@ -1161,7 +1168,7 @@ $templateCache.put("components/footer/footer.ng.template.html","<div class=\"con
 $templateCache.put("components/header/header.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      <a href=\"#/\">{{vm.appTitle}}</a>\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"vm.loggedIn\">\n      <div style=\"float: left\"><a href=\"/profile/{{ vm.player }}\">My Profile</a></div>\n      <div class=\"divider\"  style=\"float: right\"></div>\n      <div style=\"float: right\" ng-controller=\"LogoutController as loc\"><a ng-click=\"loc.logout()\" style=\"cursor: pointer\">Logout</a></div>\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"!vm.loggedIn\">\n      &nbsp;\n    </div>\n  </div>\n</div>\n");
 $templateCache.put("components/login/login.ng.template.html","<app-header></app-header>\n\n\n<div class=\"row\">\n  <div class=\"medium-6 medium-offset-3 columns\">\n    <h2>Login</h2>\n    <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n    <form name=\"form\" ng-submit=\"vm.login()\" role=\"form\">\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.username.$dirty && form.username.$error.required }\">\n        <label for=\"username\">Username</label>\n        <input type=\"text\" name=\"username\" id=\"username\" class=\"form-control\" ng-model=\"vm.loginForm.username\" required />\n        <span ng-show=\"form.username.$dirty && form.username.$error.required\" class=\"help-block\">Username is required</span>\n      </div>\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.password.$dirty && form.password.$error.required }\">\n        <label for=\"password\">Password</label>\n        <input type=\"password\" name=\"password\" id=\"password\" class=\"form-control\" ng-model=\"vm.loginForm.password\" required />\n        <span ng-show=\"form.password.$dirty && form.password.$error.required\" class=\"help-block\">Password is required</span>\n      </div>\n      <div class=\"form-actions\">\n        <button type=\"submit\" ng-disabled=\"form.$invalid || vm.disabled\" class=\"btn btn-primary\">Login</button>\n        <img ng-if=\"vm.dataLoading\" src=\"data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==\" />\n        <a href=\"#/register\" class=\"btn btn-link\">Register</a>\n      </div>\n    </form>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-4 columns\">\n    <calendar-list></calendar-list>\n  </div>\n  <div class=\"small-8 columns\">\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h2>Current Season: {{vm.season}}</h2>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Upcoming Race</h3>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"!vm.raceTrio.currentRace\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h4>No Races Currently Set</h4>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"vm.raceTrio.currentRace\">\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_name}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\" ng-if=\"vm.playerHasPick\">\n          <h4><a href=\"#/player-pick/true\">Edit my picks</a></h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\" ng-if=\"!vm.playerHasPick\">\n          <h4><a href=\"#/player-pick/false\">Select my picks</a></h4>\n        </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
-$templateCache.put("components/player-pick/player-pick.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-12 columns\">\n    Select you picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}\n  </div>\n</div>\n\n<div data-ng-repeat=\"pick in [1,2,3,4,5,6,7,8,9,10]\">\n  <div class=\"row\" style=\"margin-top: 3px;\">\n    <div class=\"small-12 columns\">\n      <div class=\"pick-position-indicator\">{{pick}}</div>\n      <select class=\"pick-selector\" name=\"pickSelector{{pick}}\" id=\"pickSelector{{pick}}\" ng-model=\"vm.playerPicks[pick-1]\" ng-change=\"vm.pickSelected()\">\n        <option ng-repeat=\"driver in vm.raceDetails\" value=\"{{driver.driver_id}}\">{{driver.driver_name}}</option>\n      </select>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
+$templateCache.put("components/player-pick/player-pick.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-12 columns\">\n    Select you picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}\n  </div>\n</div>\n\n<div data-ng-repeat=\"pick in [1,2,3,4,5,6,7,8,9,10]\">\n  <div class=\"row\" style=\"margin-top: 3px;\">\n    <div class=\"small-12 columns\">\n      <div class=\"pick-position-indicator\">{{pick}}</div>\n      <select class=\"pick-selector\"\n              name=\"pickSelector{{pick}}\"\n              id=\"pickSelector{{pick}}\"\n              ng-options=\"driver.driver_id as driver.driver_name for driver in vm.raceDetails\"\n              ng-model=\"vm.playerPicks[pick-1]\"\n              ng-change=\"vm.pickSelected()\">\n      </select>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registration.ng.template.html","<app-header></app-header>\n\n  <div class=\"row\">\n    <div class=\"medium-6 medium-offset-3 columns\">\n      <h2>Register for {{vm.title}}</h2>\n      <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n      <form name=\"registrationForm\" novalidate ng-submit=\"vm.register()\">\n        <div class=\"form-group\" ng-class=\"{ \'has-error\': registrationForm.username.$touched && registrationForm.username.$invalid }\">\n          <input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"Username\" ng-model=\"vm.registerForm.username\" required />\n          <div ng-messages=\"registrationForm.username.$error\" ng-show=\"registrationForm.username.$touched\" role=\"alert\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"password\" placeholder=\"Password\" ng-model=\"vm.registerForm.password\" required>\n          <div ng-messages=\"registrationForm.password.$error\" ng-show=\"registrationForm.password.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"confirmPassword\" placeholder=\"Confirm Password\" ng-model=\"vm.registerForm.confirmPassword\" required compare-to=\"vm.registerForm.password\">\n          <div ng-messages=\"registrationForm.confirmPassword.$error\" ng-show=\"registrationForm.confirmPassword.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div>\n          <button type=\"submit\" class=\"btn btn-default\" ng-disabled=\"registrationForm.$invalid\">Register</button>\n        </div>\n      </form>\n    </div>\n  </div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registrationConfirmation.ng.template.html","<my-header></my-header>\n\n<div class=\"medium-6 medium-offset-3 columns\">\n  <h2>Welcome {{vm.username}}</h2>\n  <h2>Thanks for joining F1 QuickPick!</h2>\n  <h3><a ng-href=\"#/login/{{vm.username}}\">Login</a> to get started!</h3>\n</div>\n");
 $templateCache.put("components/registration/registrationMessages.ng.template.html","<div class=\"messages\">\n  <div ng-message=\"required\">Required</div>\n  <div ng-message=\"minlength\">Too short</div>\n  <div ng-message=\"maxlength\">Too long</div>\n  <div ng-message=\"email\">Invalid email address</div>\n  <div ng-message=\"compareTo\">Must match the previous entry</div>\n</div>\n");}]);

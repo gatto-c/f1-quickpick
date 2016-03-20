@@ -102,7 +102,8 @@ module.exports.loadRaceData = function*(year, race_number) {
 
           driver_id: raceData.constructors[c].drivers[d].driverId,
           driver_code: raceData.constructors[c].drivers[d].code,
-          driver_name: raceData.constructors[c].drivers[d].givenName + ' ' + raceData.constructors[c].drivers[d].familyName
+          driver_name: raceData.constructors[c].drivers[d].givenName + ' ' + raceData.constructors[c].drivers[d].familyName,
+          driver_nationality: raceData.constructors[c].drivers[d].nationality
         });
 
         raceDriver.save(function (err) {
@@ -145,3 +146,9 @@ module.exports.loadTestPick = function*() {
     })
   });
 };
+
+module.exports.loadNationalities = function*() {
+  co(function *() {
+    logger.debug('Loading nationalities...');
+  });
+}

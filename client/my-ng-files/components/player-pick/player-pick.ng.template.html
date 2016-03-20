@@ -10,8 +10,12 @@
   <div class="row" style="margin-top: 3px;">
     <div class="small-12 columns">
       <div class="pick-position-indicator">{{pick}}</div>
-      <select class="pick-selector" name="pickSelector{{pick}}" id="pickSelector{{pick}}" ng-model="vm.playerPicks[pick-1]" ng-change="vm.pickSelected()">
-        <option ng-repeat="driver in vm.raceDetails" value="{{driver.driver_id}}">{{driver.driver_name}}</option>
+      <select class="pick-selector"
+              name="pickSelector{{pick}}"
+              id="pickSelector{{pick}}"
+              ng-options="driver.driver_id as driver.driver_name for driver in vm.raceDetails"
+              ng-model="vm.playerPicks[pick-1]"
+              ng-change="vm.pickSelected()">
       </select>
     </div>
   </div>

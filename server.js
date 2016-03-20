@@ -41,6 +41,8 @@ module.exports.startServer = function(config) {
   console.log('Starting:', id);
   console.log('Config:', config);
 
+
+
   app.keys = ['6AD7BC9C-F6B5-4384-A892-43D3BE57D89F'];
   app.use(session({
     key: 'Pick10',
@@ -55,20 +57,6 @@ module.exports.startServer = function(config) {
     yield next;
     if(this.status == 404) {
       console.log('no route handler', this.path, routes);
-    }
-  });
-
-  // Custom 401 handling if you don't want to expose koa-jwt errors to users
-  app.use(function *(next){
-    try {
-      yield next;
-    } catch (err) {
-      if (401 == err.status) {
-        this.status = 401;
-        this.body = 'Protected resource, use Authorization header to get access\n';
-      } else {
-        throw err;
-      }
     }
   });
 
@@ -89,12 +77,27 @@ module.exports.startServer = function(config) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  //admin.loadRaceData(2015, 19).next();
+  //admin.loadRaceData(2014, 1).next();
   //admin.loadSeasonRaces(2011).next();
   //admin.loadTestPick().next();
 
   // Anonymous routes (static files)
   app.use(serveStaticContent(__dirname, './client'));
+  app.use(serveStaticContent(__dirname, './static'));
+
+  // Custom 401 handling if you don't want to expose koa-jwt errors to users
+  app.use(function *(next){
+    try {
+      yield next;
+    } catch (err) {
+      if (401 == err.status) {
+        this.status = 401;
+        this.body = 'Protected resource, use Authorization header to get access\n';
+      } else {
+        throw err;
+      }
+    }
+  });
 
   // anonymous API calls
   app.use(routes.anonymousRouteMiddleware(passport));
