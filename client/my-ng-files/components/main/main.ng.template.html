@@ -30,11 +30,11 @@
         <div class="small-12 columns" style="text-align: center">
           <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>
         </div>
-        <div class="small-12 columns" style="text-align: center" ng-if="vm.currentPick">
-          <h4><a href="">Edit my picks</a></h4>
+        <div class="small-12 columns" style="text-align: center" ng-if="vm.playerHasPick">
+          <h4><a href="#/player-pick/true">Edit my picks</a></h4>
         </div>
-        <div class="small-12 columns" style="text-align: center" ng-if="!vm.currentPick">
-          <h4><a href="">Select my picks</a></h4>
+        <div class="small-12 columns" style="text-align: center" ng-if="!vm.playerHasPick">
+          <h4><a href="#/player-pick/false">Select my picks</a></h4>
         </div>
     </div>
   </div>

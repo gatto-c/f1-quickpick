@@ -25,8 +25,6 @@ module.exports.anonymousRouteMiddleware = function(passport) {
    */
   routes.post('/login', function*(next) {
     var ctx = this;
-
-
     yield passport.authenticate('local', function*(err, player, info) {
       if (err) throw err;
       if (player === false) {
@@ -35,7 +33,6 @@ module.exports.anonymousRouteMiddleware = function(passport) {
       } else {
         yield ctx.login(player);
         ctx.status = 200;
-        //ctx.body = { success: true }
         ctx.body = {success: true, token: player.generateJWT()};
       }
     }).call(this, next)
@@ -66,6 +63,14 @@ module.exports.anonymousRouteMiddleware = function(passport) {
     }
   });
 
+  /**
+   * handle logout get
+   */
+  routes.get('/logout', function*(next) {
+    this.logout();
+    this.redirect('/');
+  });
+
   return routes.middleware();
 };
 
@@ -93,13 +98,30 @@ module.exports.secureRouteMiddleware = function(passport) {
   });
 
   /**
+   * determine if player has pick specified by the season and race number
+   */
+  routes.get('/player/hasPick/:year/:raceNumber', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.playerHasPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
+  });
+
+  /**
    * get the player pick specified by the season and race number
    */
   routes.get('/player/pick/:year/:raceNumber', function*(next) {
     var ctx = this;
-    logger.debug('Received get on player/pick: ', ctx.passport.user.email);
     ctx.type = "application/json";
-    ctx.body = yield dataAccess.getPlayerPick(ctx.params.year, ctx.params.raceNumber);
+    ctx.body = yield dataAccess.getPlayerPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
+  });
+
+  /**
+   * get the race details for the specified season/race#
+   */
+  routes.get('/raceDetails/:year/:raceNumber', function*(next) {
+    var ctx = this;
+    ctx.type = "application/json";
+    ctx.body = yield dataAccess.getRaceDetails(ctx.params.year, ctx.params.raceNumber);
   });
 
   /**

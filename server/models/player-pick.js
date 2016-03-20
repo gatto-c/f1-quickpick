@@ -4,7 +4,7 @@ var co = require('co');
 var logger = require('../../logger');
 
 var PlayerPickSchema = new Schema({
-  user: {type: Schema.Types.ObjectId, ref: 'player'},
+  player: {type: Schema.Types.ObjectId, ref: 'player'},
   year: {type: Number, required: true},
   race_number: {type: Number, required: true},
   race_name: {type: String, required: true},

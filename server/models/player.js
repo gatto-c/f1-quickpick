@@ -24,11 +24,12 @@ PlayerSchema.methods.validPassword = function(password) {
 };
 
 PlayerSchema.methods.generateJWT = function() {
-  // set expiration to 60 days
+  //calculate expiry date for the jwt
   var today = new Date();
   var exp = new Date(today);
-  exp.setDate(today.getDate() + 60);
+  exp.setMinutes (exp.getMinutes() + config.jwtExpiryMinutes);
 
+  //sign the jwt and include user's id, name, and expiry in token's payload
   return jwt.sign({
     _id: this._id,
     username: this.username,
@@ -36,11 +37,15 @@ PlayerSchema.methods.generateJWT = function() {
   }, config.jwtSecret);
 };
 
+/**
+ * confirm passed username and password match an existing user
+ * @param username
+ * @param password
+ * @returns {*}
+ */
 PlayerSchema.statics.matchPlayer = function *(username, password) {
   var user = yield this.findOne({ 'username': username.toLowerCase() }).exec();
-  if (!user) throw new Error('User not found');
-
-  logger.debug('PlayerSchema.statics.matchPlayer2: ', user.username);
+  if (!user) throw new Error('Player not found');
 
   if (user.validPassword(password)) {
     return user;

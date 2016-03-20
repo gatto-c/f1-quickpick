@@ -36,8 +36,10 @@ function($routeProvider) {
       controllerAs: 'vm',
       access: {restricted: false}
     })
-  .when('/one', {
-      template: '<h1>This is page one!</h1>',
+  .when('/player-pick/:hasplayerpick?', {
+      templateUrl: '/client/my-ng-files/components/player-pick/player-pick.ng.template.html',
+      controller: 'PlayerPickController',
+      controllerAs: 'vm',
       access: {restricted: true}
    })
   .when('/two', {

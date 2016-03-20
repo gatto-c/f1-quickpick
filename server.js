@@ -16,6 +16,7 @@ module.exports.startServer = function(config) {
   const
     koa = require('koa'),
     koaRender = require('koa-render'),
+    favicon = require('koa-favicon'),
     bodyParser = require('koa-bodyparser'),
     logger = require('./logger'),
     session = require('koa-generic-session'),
@@ -37,35 +38,25 @@ module.exports.startServer = function(config) {
     id = getIdentity(),
     FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-  //console.log('Starting:', id);
-  //console.log('Starting with config:', config);
+  console.log('Starting:', id);
+  console.log('Config:', config);
+
+
 
   app.keys = ['6AD7BC9C-F6B5-4384-A892-43D3BE57D89F'];
   app.use(session({
     key: 'Pick10',
     store: new mongoStore({url: config.mongoUri}),
     rolling: true,
-    cookie: {maxage: FIFTEEN_MINUTES}
+    cookie: {maxage: (config.jwtExpiryMinutes * 60 * 1000)}
   }));
+
+  app.use(favicon(__dirname + '/client/favicon.ico'));
 
   app.use(function*(next){
     yield next;
     if(this.status == 404) {
       console.log('no route handler', this.path, routes);
-    }
-  });
-
-  // Custom 401 handling if you don't want to expose koa-jwt errors to users
-  app.use(function *(next){
-    try {
-      yield next;
-    } catch (err) {
-      if (401 == err.status) {
-        this.status = 401;
-        this.body = 'Protected resource, use Authorization header to get access\n';
-      } else {
-        throw err;
-      }
     }
   });
 
@@ -86,18 +77,44 @@ module.exports.startServer = function(config) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  //admin.loadRaceData(2015, 19).next();
+  //admin.loadRaceData(2014, 1).next();
   //admin.loadSeasonRaces(2011).next();
   //admin.loadTestPick().next();
 
   // Anonymous routes (static files)
   app.use(serveStaticContent(__dirname, './client'));
+  app.use(serveStaticContent(__dirname, './static'));
+
+  // Custom 401 handling if you don't want to expose koa-jwt errors to users
+  app.use(function *(next){
+    try {
+      yield next;
+    } catch (err) {
+      if (401 == err.status) {
+        this.status = 401;
+        this.body = 'Protected resource, use Authorization header to get access\n';
+      } else {
+        throw err;
+      }
+    }
+  });
 
   // anonymous API calls
   app.use(routes.anonymousRouteMiddleware(passport));
 
+  // Require authentication for now
+  app.use(function*(next) {
+    var ctx = this;
+    if (ctx.isAuthenticated()) {
+      yield next;
+    } else {
+      logger.warn('User not authenticated');
+      ctx.redirect('#/login');
+    }
+  });
+
   // Middleware below this line is only reached if JWT token is valid
-  app.use(jwt({ secret: config.jwtSecret }));
+  app.use(jwt({secret: config.jwtSecret}));
 
   // secured routes requiring authentication
   app.use(routes.secureRouteMiddleware(passport));

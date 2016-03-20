@@ -15,19 +15,21 @@
     vm.raceTrio = {};
     vm.title = appConfig.appTitle;
     vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
-    vm.raceTrio = raceManager.getRaceTrio();
-    vm.currentPick = {};
+    vm.currentPick = null;
+    vm.playerHasPick = false;
 
-    f1QuickPickProxy.getPlayerPick(appConfig.season, 1).then(
-      function(pick) {
-        if(_.isEmpty(pick)) {
-          $log.debug('MainController - no pick located for', appConfig.season, '/1');
-        } else {
-          vm.currentPick = pick;
-          $log.debug('MainController - pick:', pick);
+
+    raceManager.getRaceTrio().then(function(raceTrio){
+      vm.raceTrio = raceTrio;
+      $log.debug('raceTrio.currentRace:', raceTrio.currentRace);
+
+      f1QuickPickProxy.playerHasPick(appConfig.season, raceTrio.currentRace.race_number).then(
+        function(hasPick) {
+          $log.debug('MainController - Player hasPick:', hasPick);
+          vm.playerHasPick = hasPick;
         }
-      }
-    );
+      );
 
+    });
   }
 })();

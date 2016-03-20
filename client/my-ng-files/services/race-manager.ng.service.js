@@ -9,9 +9,9 @@
 
 
   // inject dependencies
-  raceManager.$inject = ['$log', 'appConfig', 'moment', 'f1QuickPickProxy'];
+  raceManager.$inject = ['$log', 'appConfig', 'moment', 'f1QuickPickProxy', 'Q'];
 
-  function raceManager($log, appConfig, moment, f1QuickPickProxy){
+  function raceManager($log, appConfig, moment, f1QuickPickProxy, Q){
     var RaceManager = {};
 
     RaceManager.noCall = function() {
@@ -45,7 +45,9 @@
      * @returns {{}}
      */
     RaceManager.getRaceTrio = function() {
+      var myPromise = Q.defer();
       var raceTrio = {};
+
       f1QuickPickProxy.getRaceCalendar().then(
         function(races) {
           var currentRaceIndex = getCurrentRaceIndex(races);
@@ -67,10 +69,31 @@
             raceTrio.previousRace = races[currentRaceIndex - 1];
             raceTrio.nextRace = races[currentRaceIndex + 1];
           }
+
+          myPromise.resolve(raceTrio)
         }
       );
 
-      return raceTrio;
+      return myPromise.promise;
+    };
+
+    /**
+     * Calls proxy service to get race details for specified year/race#
+     * @param year
+     * @param raceNumber
+     * @returns {*}
+     */
+    RaceManager.getRaceDetails = function(year, raceNumber) {
+      var myPromise = Q.defer();
+      var raceDetails = {};
+
+      f1QuickPickProxy.getRaceDetails(year, raceNumber).then(
+        function(raceDetails) {
+          myPromise.resolve(raceDetails)
+        }
+      );
+
+      return myPromise.promise;
     };
 
     return RaceManager;

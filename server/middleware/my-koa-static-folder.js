@@ -11,6 +11,7 @@ var send = require('koa-send'),
  * @api public
  */
 function serve(localBaseDirectory, serveDirectory){
+  console.log('localBaseDirectory:', localBaseDirectory, 'serveDirectory:', serveDirectory);
   if(!serveDirectory) throw Error('serveDirectory must be defined.');
   if(typeof serveDirectory !== 'string') throw TypeError('Path must be a defined string.');
 
@@ -34,6 +35,7 @@ function walk(directory, finalFiles) {
   var files = fs.readdirSync(directory);
   for(var i=0; i<files.length; i++) {
     var file = files[i];
+    console.log(file);
     if(!file) continue;
     file = directory + '/' + file;
     if(fs.statSync(file).isDirectory()) {

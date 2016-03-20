@@ -4,6 +4,7 @@ var Race = require('../models/race');
 var RaceDriver = require('../models/race-driver');
 var PlayerPick = require('../models/player-pick');
 var ergast = require('../data-access/ergast');
+var mongoose = require('mongoose');
 
 /**
  * Acquire and save race calendar data for a given year
@@ -101,7 +102,8 @@ module.exports.loadRaceData = function*(year, race_number) {
 
           driver_id: raceData.constructors[c].drivers[d].driverId,
           driver_code: raceData.constructors[c].drivers[d].code,
-          driver_name: raceData.constructors[c].drivers[d].givenName + ' ' + raceData.constructors[c].drivers[d].familyName
+          driver_name: raceData.constructors[c].drivers[d].givenName + ' ' + raceData.constructors[c].drivers[d].familyName,
+          driver_nationality: raceData.constructors[c].drivers[d].nationality
         });
 
         raceDriver.save(function (err) {
@@ -119,7 +121,11 @@ module.exports.loadRaceData = function*(year, race_number) {
 
 module.exports.loadTestPick = function*() {
   co(function *(){
+    logger.debug('Loading test pick ...');
+    var id = mongoose.Types.ObjectId("569aef0513c287b61763f4e1");
+    logger.debug('Loading test pick, id:', id);
     var pick = {
+      player: id,
       year: 2015,
       race_number: 1,
       race_name: 'Australian Grand Prix',
@@ -140,3 +146,9 @@ module.exports.loadTestPick = function*() {
     })
   });
 };
+
+module.exports.loadNationalities = function*() {
+  co(function *() {
+    logger.debug('Loading nationalities...');
+  });
+}
