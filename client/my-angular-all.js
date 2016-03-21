@@ -436,80 +436,6 @@ function($routeProvider) {
 
   angular
 
-  .module("f1Quickpick")
-
-  .service('ergastCalls', ergastCalls);
-
-  /**
-   * wrapper for all ergast based calls to ergast api
-   * @param $log
-   * @param MyHttp
-   * @returns {{}}
-   */
-  function ergastCalls($log, MyHttp, ergastAPIAddress){
-    var ErgastCalls = {};
-
-    ErgastCalls.noCall = function() {
-      return "";
-    };
-
-    ErgastCalls.getRaceSchedule = function(year) {
-      var myPromise;
-
-      $log.info('ergastCalls.getRaceSchedule: ', year);
-
-      //api call format: http://ergast.com/api/f1/year
-      myPromise = MyHttp
-        .path(ergastAPIAddress)
-        .path(year)
-        .path('results.json?limit=500')
-        .get()
-        .catch(function () {
-          myPromise = null
-        });
-
-      return myPromise;
-    };
-
-    /**
-     * returns race results for the specified race identified by year (xxxx) and race number (1-xx)
-     * @param year
-     * @param race
-     * @returns {*}
-     */
-    ErgastCalls.getRaceResults = function(year, race) {
-      var myPromise;
-
-      $log.info('ergastCalls.getRaceResults: ', year, '/', race);
-
-      //api call format: http://ergast.com/api/f1/year/race/results.json
-      myPromise = MyHttp
-        .path(ergastAPIAddress)
-        .path(year)
-        .path(race)
-        .path('results.json?limit=30')
-        .get()
-        .catch(function () {
-          myPromise = null
-        });
-
-      return myPromise;
-    };
-
-    return ErgastCalls;
-  }
-
-})();
-}());
-
-;(function() {
-"use strict";
-
-(function() {
-  'use strict';
-
-  angular
-
     .module("f1Quickpick")
 
     .service('f1QuickPickProxy', f1QuickPickProxy);
@@ -872,6 +798,29 @@ function($routeProvider) {
 
   angular
 
+    .module("f1Quickpick")
+
+    .controller('appHeaderController', appHeaderController);
+
+  appHeaderController.$inject = ['$log', 'appConfig', 'AuthService'];
+
+    function appHeaderController($log, appConfig, AuthService) {
+      var vm = this;
+      vm.appTitle = appConfig.appTitle;
+      vm.loggedIn = AuthService.isLoggedIn();
+      vm.player = AuthService.currentUser();
+    }
+})();
+}());
+
+;(function() {
+"use strict";
+
+(function() {
+  'use strict';
+
+  angular
+
     .module('f1Quickpick')
 
     .controller('LoginController', LoginController);
@@ -917,29 +866,6 @@ function($routeProvider) {
             vm.disabled = false;
           });
       };
-    }
-})();
-}());
-
-;(function() {
-"use strict";
-
-(function() {
-  'use strict';
-
-  angular
-
-    .module("f1Quickpick")
-
-    .controller('appHeaderController', appHeaderController);
-
-  appHeaderController.$inject = ['$log', 'appConfig', 'AuthService'];
-
-    function appHeaderController($log, appConfig, AuthService) {
-      var vm = this;
-      vm.appTitle = appConfig.appTitle;
-      vm.loggedIn = AuthService.isLoggedIn();
-      vm.player = AuthService.currentUser();
     }
 })();
 }());
@@ -1047,16 +973,30 @@ function($routeProvider) {
       $log.debug('playerPicks:', vm.playerPicks);
     };
 
+
+
     raceManager.getRaceTrio().then(function(raceTrio){
       vm.raceTrio = raceTrio;
 
-      raceManager.getRaceDetails(2015, 1).then(function(raceDetails) {
-        raceDetails.unshift(defaultPick);
-        vm.raceDetails = raceDetails;
-        $log.debug('race:', vm.raceTrio.currentRace);
-        $log.debug('raceDetails:', raceDetails);
-        $log.debug('playerPicks:', vm.playerPicks);
-        $scope.$apply();
+      raceManager.getRaceDetails(vm.raceTrio.currentRace.year, vm.raceTrio.currentRace.race_number).then(function(raceDetails) {
+        $log.debug('Race Details1:', raceDetails);
+
+        var drivers = _.chain(_.map(raceDetails.constructors, function(value, key) {
+          return _.map(value.drivers, function(value, key) {
+            console.log(value.driver_name);
+            return value.driver_name;
+          })
+        })).flatten().value();
+
+        console.log('drivers:', drivers);
+
+        //raceDetails.unshift(defaultPick);
+        //$log.debug('Race Details2:', raceDetails);
+        //vm.raceDetails = raceDetails;
+        //$log.debug('race:', vm.raceTrio.currentRace);
+        //$log.debug('raceDetails:', raceDetails);
+        //$log.debug('playerPicks:', vm.playerPicks);
+        //$scope.$apply();
       });
 
 

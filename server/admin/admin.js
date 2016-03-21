@@ -1,7 +1,6 @@
 var logger = require('../../logger');
 var co = require('co');
 var Race = require('../models/race');
-var RaceDriver = require('../models/race-driver');
 var PlayerPick = require('../models/player-pick');
 var ergast = require('../data-access/ergast');
 var mongoose = require('mongoose');
@@ -59,16 +58,9 @@ module.exports.loadSeasonRaces = function*(year) {
  */
 module.exports.loadRaceData = function*(year, race_number) {
   co(function *(){
-    //step 0 - precheck to make sure that there are is current race-driver data for the year/race_number
-    count = yield RaceDriver.count({year: year, race_number: race_number}).exec();
-    if (count > 0) {
-      logger.debug('loadRaceData: there are already', count, 'race-drivers loaded for race#', race_number, 'of', year, '. No more will be saved.');
-      return;
-    }
-
-    //step 1 - get the race schedule for the year from db
-    var race = yield Race.find({year: year, race_number: race_number}).exec();
-    if (!race || race.length != 1) {
+    //step 1 - get the race from db
+    var race = yield Race.findOne({year: year, race_number: race_number}).exec();
+    if (!race) {
       logger.error('Unable to locate race data for season', year, ', race number', race_number);
       return;
     }
@@ -78,44 +70,53 @@ module.exports.loadRaceData = function*(year, race_number) {
     var raceData = {};
     raceData.constructors = [];
 
+    var constructors = [];
+
     //step 2 - get constructors list for the race from ergast
-    var race_constructors = yield ergast.getRaceConstructors(year, race[0].race_circuit_id);
+    var race_constructors = yield ergast.getRaceConstructors(year, race.race_circuit_id);
     //logger.debug('race_constructors:', race_constructors);
 
     //step 3 - for each constructor get the drivers used at the race from ergast and build out the raceData object
-    for (i = 0; i < race_constructors.length; i++) {
-      var constructorDrivers = yield ergast.getRaceConstructorDrivers(year, race[0].race_circuit_id, race_constructors[i].constructorId);
-      raceData.constructors.push({constructor_id: race_constructors[i].constructorId, constructor_name: race_constructors[i].name, drivers: constructorDrivers});
-    }
+    for (c = 0; c < race_constructors.length; c++) {
+      //get the drivers for the constructor at the specific race
+      var constructorDrivers = yield ergast.getRaceConstructorDrivers(year, race.race_circuit_id, race_constructors[c].constructorId);
 
-    //step 4 - save the data as race-driver records in mongo
-    for (c = 0; c < raceData.constructors.length; c++) {
-      for (d = 0; d < raceData.constructors[c].drivers.length; d++){
-        //console.log('Constructor:', raceData.constructors[c].constructor_name, ', Driver:', raceData.constructors[c].drivers[d]);
-        var raceDriver = new RaceDriver({
-          year: year,
-          race_number: race_number,
-          race_name: race[0].race_name,
+      //build the constructor sub-doc
+      var constructor = {
+        constructor_id: race_constructors[c].constructorId,
+        constructor_name: race_constructors[c].name,
+        drivers: []
+      };
 
-          constructor_id: raceData.constructors[c].constructor_id,
-          constructor_name: raceData.constructors[c].constructor_name,
+      //into the constructor sub-doc add each of the constructor's drivers
+      for (d = 0; d < constructorDrivers.length; d++) {
+        var driver = {
+          driver_id: constructorDrivers[d].driverId,
+          driver_code: constructorDrivers[d].code,
+          driver_name: constructorDrivers[d].givenName + ' ' + constructorDrivers[d].familyName,
+          driver_nationality: constructorDrivers[d].nationality
+        };
 
-          driver_id: raceData.constructors[c].drivers[d].driverId,
-          driver_code: raceData.constructors[c].drivers[d].code,
-          driver_name: raceData.constructors[c].drivers[d].givenName + ' ' + raceData.constructors[c].drivers[d].familyName,
-          driver_nationality: raceData.constructors[c].drivers[d].nationality
-        });
-
-        raceDriver.save(function (err) {
-          if (err) {
-            return err;
-          }
-          else {
-            logger.log('info', 'Race Driver saved');
-          }
-        });
+        constructor.drivers.push(driver);
       }
+
+      //push the constructor onto the constructs sub-doc array
+      constructors.push(constructor);
     }
+
+    //step 4 - add the constructor/driver sub-doc array to race mongo record and save
+    console.log('race:', race);
+    race.constructors = constructors;
+    console.log('race:', race);
+    race.save(function (err) {
+      if (err) {
+        logger.error(err);
+        return err;
+      }
+      else {
+        logger.log('info', 'Race constructor/driver data saved');
+      }
+    });
   });
 };
 

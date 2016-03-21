@@ -1,5 +1,4 @@
 var Race = require('../models/race');
-var RaceDriver = require('../models/race-driver');
 var co = require('co');
 var request = require('koa-request');
 var config = require('../../config').getConfig();

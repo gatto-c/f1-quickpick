@@ -1,6 +1,5 @@
 var Race = require('../models/race');
 var PlayerPick = require('../models/player-pick');
-var RaceDriver = require('../models/race-driver');
 var mongoose = require('mongoose')
 
 /**
@@ -59,7 +58,7 @@ module.exports.getPlayerPick = function*(playerId, year, raceNumber){
  * @returns {*}
  */
 module.exports.getRaceDetails = function*(year, raceNumber){
-  return yield RaceDriver.find({
+  return yield Race.findOne({
     year: year,
     race_number: raceNumber
   }).exec();
