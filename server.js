@@ -39,9 +39,6 @@ module.exports.startServer = function(config) {
     FIFTEEN_MINUTES = 15 * 60 * 1000;
 
   console.log('Starting:', id);
-  console.log('Config:', config);
-
-
 
   app.keys = ['6AD7BC9C-F6B5-4384-A892-43D3BE57D89F'];
   app.use(session({
@@ -77,8 +74,8 @@ module.exports.startServer = function(config) {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  //admin.loadRaceData(2014, 1).next();
-  //admin.loadSeasonRaces(2011).next();
+  //admin.loadSeasonRaces(2015).next();
+  //admin.loadRaceData(2015, 20).next();
   //admin.loadTestPick().next();
 
   // Anonymous routes (static files)

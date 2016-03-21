@@ -12,7 +12,17 @@ var RaceSchema = new Schema({
   race_locale: {type: String, required: true},
   race_country: {type: String, required: true},
   race_date: {type: Date, required: true},
-  pick_cutoff_datetime: {type: Date, required: false}
+  pick_cutoff_datetime: {type: Date, required: false},
+  constructors: [{
+    constructor_id: {type: String, required: true},
+    constructor_name: {type: String, required: true},
+    drivers: [{
+      driver_id: {type: String, required: true},
+      driver_code: {type: String, required: true},
+      driver_name: {type: String, required: true},
+      driver_nationality: {type: String, required: false}
+    }]
+  }]
 });
 
 /**

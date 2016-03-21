@@ -35,7 +35,6 @@ function walk(directory, finalFiles) {
   var files = fs.readdirSync(directory);
   for(var i=0; i<files.length; i++) {
     var file = files[i];
-    console.log(file);
     if(!file) continue;
     file = directory + '/' + file;
     if(fs.statSync(file).isDirectory()) {

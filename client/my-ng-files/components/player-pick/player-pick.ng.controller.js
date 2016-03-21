@@ -27,16 +27,30 @@
       $log.debug('playerPicks:', vm.playerPicks);
     };
 
+
+
     raceManager.getRaceTrio().then(function(raceTrio){
       vm.raceTrio = raceTrio;
 
-      raceManager.getRaceDetails(2015, 1).then(function(raceDetails) {
-        raceDetails.unshift(defaultPick);
-        vm.raceDetails = raceDetails;
-        $log.debug('race:', vm.raceTrio.currentRace);
-        $log.debug('raceDetails:', raceDetails);
-        $log.debug('playerPicks:', vm.playerPicks);
-        $scope.$apply();
+      raceManager.getRaceDetails(vm.raceTrio.currentRace.year, vm.raceTrio.currentRace.race_number).then(function(raceDetails) {
+        $log.debug('Race Details1:', raceDetails);
+
+        var drivers = _.chain(_.map(raceDetails.constructors, function(value, key) {
+          return _.map(value.drivers, function(value, key) {
+            console.log(value.driver_name);
+            return value.driver_name;
+          })
+        })).flatten().value();
+
+        console.log('drivers:', drivers);
+
+        //raceDetails.unshift(defaultPick);
+        //$log.debug('Race Details2:', raceDetails);
+        //vm.raceDetails = raceDetails;
+        //$log.debug('race:', vm.raceTrio.currentRace);
+        //$log.debug('raceDetails:', raceDetails);
+        //$log.debug('playerPicks:', vm.playerPicks);
+        //$scope.$apply();
       });
 
 
