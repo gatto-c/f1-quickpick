@@ -9,14 +9,23 @@
 
 
   // inject dependencies
-  raceManager.$inject = ['$log', 'appConfig', 'moment', 'f1QuickPickProxy', 'Q'];
+  raceManager.$inject = ['$log', 'appConfig', 'moment', 'f1QuickPickProxy', 'Q', '$resource', '_'];
 
-  function raceManager($log, appConfig, moment, f1QuickPickProxy, Q){
+  function raceManager($log, appConfig, moment, f1QuickPickProxy, Q, $resource, _){
     var RaceManager = {};
 
     RaceManager.noCall = function() {
-      return;
     };
+
+    function getFlags() {
+      var myPromise = Q.defer();
+
+      $resource('/static/nationality-flags.json').get(function(data) {
+        myPromise.resolve(data);
+      });
+
+      return myPromise.promise;
+    }
 
     /**
      * determines the index of the upcoming race given the current date
@@ -85,7 +94,6 @@
      */
     RaceManager.getRaceDetails = function(year, raceNumber) {
       var myPromise = Q.defer();
-      var raceDetails = {};
 
       f1QuickPickProxy.getRaceDetails(year, raceNumber).then(
         function(raceDetails) {
@@ -96,8 +104,34 @@
       return myPromise.promise;
     };
 
+    /**
+     * Given a race object extract the drivers into a flatten object array including flag of nationality
+     * @param race - the race db object
+     */
+    RaceManager.getRaceDrivers = function(race) {
+      var myPromise = Q.defer();
+
+      getFlags().then(function(promise){
+        var flags = promise.flags;
+
+        //race contains constructors array, which contains drivers array - extract drivers into array
+        var raceDrivers = _.chain(_.map(race.constructors, function(value) {
+          var constructor = value;
+          return _.map(value.drivers, function(value) {
+            var flag = _.find(flags, function(f) {return f.nationality == value.driver_nationality});
+            return {driver_name: value.driver_name, driver_id: value.driver_id, driver_code: value.driver_code, driver_nationality: value.driver_nationality, driver_flag: flag.flag_sm, constructor_name: constructor.constructor_name};
+          })
+        })).flatten().value();
+
+        myPromise.resolve(raceDrivers);
+      });
+
+      return myPromise.promise;
+    };
+
     return RaceManager;
   }
+
 
 })();
 

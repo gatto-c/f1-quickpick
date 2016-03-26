@@ -13,9 +13,12 @@
       <select class="pick-selector"
               name="pickSelector{{pick}}"
               id="pickSelector{{pick}}"
-              ng-options="driver.driver_id as driver.driver_name for driver in vm.raceDetails"
               ng-model="vm.playerPicks[pick-1]"
-              ng-change="vm.pickSelected()">
+              ng-change="vm.pickSelected()"
+              style="background: #00D8CE">
+        <option ng-repeat="driver in vm.drivers" value="{{driver.driver_id}}">
+          {{driver.constructor_name}} - {{driver.driver_name}}
+        </option>
       </select>
     </div>
   </div>

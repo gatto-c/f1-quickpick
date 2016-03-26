@@ -14,8 +14,9 @@
     vm.test = 'test';
     vm.playerpick = {};
     vm.raceTrio = {};
-    vm.raceDetails = {};
+    vm.drivers = {};
     vm.currentPick = {};
+    vm.duplicates = [];
 
     vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
 
@@ -23,34 +24,34 @@
     defaultPick.driver_id = "0";
     defaultPick.driver_name = "- pick driver -";
 
+    /**
+     * handle all player pick selection changes
+     */
     vm.pickSelected = function() {
+      //determine if there are any duplicate picks
+      vm.duplicates = _.filter(vm.playerPicks, function (value, index, iteratee) {
+        if (value == 0) return;
+        return _.includes(iteratee, value, index + 1);
+      });
+
+      $log.debug('duplicates:', vm.duplicates);
       $log.debug('playerPicks:', vm.playerPicks);
     };
 
-
-
+    /**
+     * get the latest race info, build the current race's drivers list
+     */
     raceManager.getRaceTrio().then(function(raceTrio){
       vm.raceTrio = raceTrio;
 
-      raceManager.getRaceDetails(vm.raceTrio.currentRace.year, vm.raceTrio.currentRace.race_number).then(function(raceDetails) {
-        $log.debug('Race Details1:', raceDetails);
+      raceManager.getRaceDrivers(vm.raceTrio.currentRace).then(function(drivers) {
+        vm.drivers = drivers;
+        vm.drivers.unshift(defaultPick);
+        $log.debug('race:', vm.raceTrio.currentRace);
+        $log.debug('drivers:', vm.drivers);
+        $log.debug('playerPicks:', vm.playerPicks);
 
-        var drivers = _.chain(_.map(raceDetails.constructors, function(value, key) {
-          return _.map(value.drivers, function(value, key) {
-            console.log(value.driver_name);
-            return value.driver_name;
-          })
-        })).flatten().value();
-
-        console.log('drivers:', drivers);
-
-        //raceDetails.unshift(defaultPick);
-        //$log.debug('Race Details2:', raceDetails);
-        //vm.raceDetails = raceDetails;
-        //$log.debug('race:', vm.raceTrio.currentRace);
-        //$log.debug('raceDetails:', raceDetails);
-        //$log.debug('playerPicks:', vm.playerPicks);
-        //$scope.$apply();
+        $scope.$apply();
       });
 
 
