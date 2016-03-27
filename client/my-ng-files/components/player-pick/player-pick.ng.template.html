@@ -2,7 +2,7 @@
 
 <div class="row" style="margin-top: 18px;">
   <div class="small-12 columns">
-    Select you picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}
+    Select your picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}
   </div>
 </div>
 
@@ -15,8 +15,8 @@
               id="pickSelector{{pick}}"
               ng-model="vm.playerPicks[pick-1]"
               ng-change="vm.pickSelected()"
-              style="background: #00D8CE">
-        <option ng-repeat="driver in vm.drivers" value="{{driver.driver_id}}">
+              ng-style="{background: vm.checkForDuplicate(pick-1) == true ? '#EF9292' : '#FFFFFF'}">
+        <option ng-repeat="driver in vm.drivers" value="{{driver.driver_id}}" style="background: #FFFFFF">
           {{driver.constructor_name}} - {{driver.driver_name}}
         </option>
       </select>

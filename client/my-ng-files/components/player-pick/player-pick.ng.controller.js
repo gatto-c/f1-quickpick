@@ -11,18 +11,24 @@
 
   function PlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
     var vm = this;
-    vm.test = 'test';
     vm.playerpick = {};
     vm.raceTrio = {};
     vm.drivers = {};
     vm.currentPick = {};
     vm.duplicates = [];
+    vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]; //array contains all user's picks (defaults to the default 'pick driver' selection (0)
 
-    vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
-
+    //create a default pick which will be applied to top of drivers list array
     var defaultPick = {};
     defaultPick.driver_id = "0";
     defaultPick.driver_name = "- pick driver -";
+
+    vm.checkForDuplicate = function(pickNum) {
+      if(vm.playerPicks[pickNum] == 0) return false;
+      var result = _.findIndex(vm.duplicates, function(d) { return d == vm.playerPicks[pickNum] });
+      $log.debug('checkForDuplicate ', vm.playerPicks[pickNum], ' in ', vm.duplicates, ', result:', result);
+      return result > -1;
+    };
 
     /**
      * handle all player pick selection changes
@@ -46,7 +52,8 @@
 
       raceManager.getRaceDrivers(vm.raceTrio.currentRace).then(function(drivers) {
         vm.drivers = drivers;
-        vm.drivers.unshift(defaultPick);
+        vm.drivers.unshift(defaultPick); //apply default pick to top of array
+
         $log.debug('race:', vm.raceTrio.currentRace);
         $log.debug('drivers:', vm.drivers);
         $log.debug('playerPicks:', vm.playerPicks);
