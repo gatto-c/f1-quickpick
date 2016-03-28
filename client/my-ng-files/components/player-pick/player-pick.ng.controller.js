@@ -23,10 +23,14 @@
     defaultPick.driver_id = "0";
     defaultPick.driver_name = "- pick driver -";
 
+    /**
+     * using the pick at the passed index look for a duplicate selection in the playerPicks array
+     * @param pickNum - the index of the user's pick in the playerPicks array
+     * @returns {boolean} - true if duplicate pick exists, false if not
+     */
     vm.checkForDuplicate = function(pickNum) {
       if(vm.playerPicks[pickNum] == 0) return false;
       var result = _.findIndex(vm.duplicates, function(d) { return d == vm.playerPicks[pickNum] });
-      $log.debug('checkForDuplicate ', vm.playerPicks[pickNum], ' in ', vm.duplicates, ', result:', result);
       return result > -1;
     };
 
@@ -34,14 +38,14 @@
      * handle all player pick selection changes
      */
     vm.pickSelected = function() {
-      //determine if there are any duplicate picks
+      //record any duplicate picks in the 'duplicates' var
       vm.duplicates = _.filter(vm.playerPicks, function (value, index, iteratee) {
         if (value == 0) return;
         return _.includes(iteratee, value, index + 1);
       });
 
-      $log.debug('duplicates:', vm.duplicates);
-      $log.debug('playerPicks:', vm.playerPicks);
+      //$log.debug('duplicates:', vm.duplicates);
+      //$log.debug('playerPicks:', vm.playerPicks);
     };
 
     /**
