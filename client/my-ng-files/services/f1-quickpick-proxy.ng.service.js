@@ -110,6 +110,22 @@
       return myPromise;
     };
 
+    F1QuickPickProxy.submitPlayerPicks = function(year, raceNumber, picks) {
+      var myPromise;
+      $log.debug('f1QuickPickProxy.submitPlayerPicks: season:', year, ', race:', raceNumber, ', picks:', picks);
+
+      myPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('player')
+        .path('pick')
+        .post({year: year, raceNumber: raceNumber, picks: picks}, false, AuthService.getToken())
+        .catch(function () {
+          myPromise = null
+        });
+
+      return myPromise;
+    };
+
     return F1QuickPickProxy;
   }
 

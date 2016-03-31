@@ -129,6 +129,20 @@
       return myPromise.promise;
     };
 
+    RaceManager.submitPlayerPicks = function(year, raceNumber, picks) {
+      console.log('RaceManager.submitPlayerPicks:', year, raceNumber, picks);
+
+      var myPromise = Q.defer();
+
+      f1QuickPickProxy.submitPlayerPicks(year, raceNumber, picks).then(
+        function(result) {
+          myPromise.resolve(result)
+        }
+      );
+
+      return myPromise.promise;
+    };
+
     return RaceManager;
   }
 

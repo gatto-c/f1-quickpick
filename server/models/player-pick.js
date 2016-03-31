@@ -7,13 +7,9 @@ var PlayerPickSchema = new Schema({
   player: {type: Schema.Types.ObjectId, ref: 'player'},
   year: {type: Number, required: true},
   race_number: {type: Number, required: true},
-  race_name: {type: String, required: true},
-  race_circuit: {type: String, required: true},
-  race_locale: {type: String, required: true},
-  race_country: {type: String, required: true},
-  race_date: {type: Date, required: true},
-  pick_cutoff_datetime: {type: Date, required: false}
-});
+  picks: [String],
+  created_date: {type: Date, default: Date.now}
+}).index({year: 1, race_number: 1, player: 1}, {unique: true});
 
 /**
  * pre save will insert or update Race info

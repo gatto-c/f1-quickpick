@@ -115,6 +115,12 @@ module.exports.secureRouteMiddleware = function(passport) {
     ctx.body = yield dataAccess.getPlayerPick(ctx.passport.user._id, ctx.params.year, ctx.params.raceNumber);
   });
 
+  routes.post('/player/pick', function*(next) {
+    var ctx = this;
+    logger.debug('routes > post > /player/pick:', ctx.request.body.year, ctx.request.body.raceNumber, ctx.request.body.picks);
+    ctx.body = yield dataAccess.submitPlayerPicks(ctx.passport.user._id, ctx.request.body.year, ctx.request.body.raceNumber, ctx.request.body.picks);
+  });
+
   /**
    * get the race details for the specified season/race#
    */

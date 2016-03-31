@@ -48,6 +48,17 @@
       //$log.debug('playerPicks:', vm.playerPicks);
     };
 
+    vm.submit = function() {
+      console.log('submit picks');
+      raceManager.submitPlayerPicks(vm.raceTrio.currentRace.year, vm.raceTrio.currentRace.race_number, vm.playerPicks).then(function(result){
+        console.log('controller > picks submitted > result:', result);
+      })
+    };
+
+    vm.reset = function() {
+      console.log('reset picks');
+    };
+
     /**
      * get the latest race info, build the current race's drivers list
      */

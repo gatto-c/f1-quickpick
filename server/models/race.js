@@ -4,7 +4,7 @@ var co = require('co');
 var logger = require('../../logger');
 
 var RaceSchema = new Schema({
-  year: {type: Number, required: true},
+  year: {type: Number, required: true, },
   race_number: {type: Number, required: true},
   race_name: {type: String, required: true},
   race_circuit_id: {type: String, required: true},
@@ -23,7 +23,7 @@ var RaceSchema = new Schema({
       driver_nationality: {type: String, required: false}
     }]
   }]
-});
+}).index({year: 1, race_number: 1}, {unique: true});
 
 /**
  * pre save will insert or update Race info
