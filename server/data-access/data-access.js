@@ -73,7 +73,7 @@ module.exports.getRaceDetails = function*(year, raceNumber){
  * @param picks - array of driverIds
  * @returns {*}
  */
-module.exports.submitPlayerPicks = function*(playerId, year, raceNumber, picks) {
+module.exports.submitPlayerPicks = function*(playerId, year, raceNumber, picks, next) {
   console.log('submitPlayerPicks called:', playerId, year, raceNumber, picks);
 
   //convert playerId into mongoose objectId
@@ -103,11 +103,20 @@ module.exports.submitPlayerPicks = function*(playerId, year, raceNumber, picks) 
   });
 
   //save the pick to db
-  return yield pick.save(pick, function(err, data) {
-    if (err) {
-      logger.error('Problem saving playerPick:', err.message);
-    } else {
-      logger.debug('playerPick saved:', picks);
-    }
-  });
+  try {
+    console.log('here 1');
+    yield pick.save(pick, function(err, data) {
+      console.log('here 2');
+      if (err) {
+        console.log('here 3');
+        var msg = err.errors.picks.message;
+        next('Problem saving playerPick: ' + msg, 400);
+      } else {
+        console.log('here 4');
+        next(null, 200);
+      }
+    });
+  } catch(err) {
+    //logger.warn('Pick validation error caught:', err.message)
+  }
 };
