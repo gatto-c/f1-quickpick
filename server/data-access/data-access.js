@@ -104,19 +104,15 @@ module.exports.submitPlayerPicks = function*(playerId, year, raceNumber, picks, 
 
   //save the pick to db
   try {
-    console.log('here 1');
     yield pick.save(pick, function(err, data) {
-      console.log('here 2');
       if (err) {
-        console.log('here 3');
         var msg = err.errors.picks.message;
         next('Problem saving playerPick: ' + msg, 400);
       } else {
-        console.log('here 4');
         next(null, 200);
       }
     });
   } catch(err) {
-    //logger.warn('Pick validation error caught:', err.message)
+    logger.warn('Pick validation error caught:', err.message)
   }
 };

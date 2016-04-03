@@ -24,7 +24,7 @@
      */
     F1QuickPickProxy.getRaceCalendar = function() {
       if (!getRaceCalendarPromise) {
-        $log.info('f1QuickPickProxy.getRaceCalendar:', appConfig.season);
+        //$log.info('f1QuickPickProxy.getRaceCalendar:', appConfig.season);
 
         getRaceCalendarPromise = MyHttp
           .path(appConfig.apiAddress)
@@ -112,7 +112,6 @@
 
     F1QuickPickProxy.submitPlayerPicks = function(year, raceNumber, picks) {
       var myPromise;
-      $log.debug('f1QuickPickProxy.submitPlayerPicks: season:', year, ', race:', raceNumber, ', picks:', picks);
 
       myPromise = MyHttp
         .path(appConfig.apiAddress)

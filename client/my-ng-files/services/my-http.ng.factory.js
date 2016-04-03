@@ -54,17 +54,11 @@
      * @returns {*|{get}}
      */
     HttpRequest.prototype.post = function(objectToPost, dataOnly, token) {
-      console.log('post token:', token);
-
       dataOnly = dataOnly !== false; //defaults to true
-
       var url = this.getUrl();
 
       //if a token is provided then specify an auth header
       var headers = token ?  {'Authorization': 'bearer ' + token} : {};
-
-      console.log('post headers:', headers);
-
 
       return $http.post(url, objectToPost, {headers: headers}).
         then(function(response){
@@ -74,7 +68,6 @@
             return response;
           }
         }, function(response) {
-          $log.debug('Post response error condition: ', response);
           return response;
         });
 

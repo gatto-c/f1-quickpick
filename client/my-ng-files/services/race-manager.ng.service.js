@@ -130,18 +130,38 @@
     };
 
     RaceManager.submitPlayerPicks = function(year, raceNumber, picks) {
-      console.log('RaceManager.submitPlayerPicks:', year, raceNumber, picks);
-
       var myPromise = Q.defer();
+      var validateErr;
 
-      f1QuickPickProxy.submitPlayerPicks(year, raceNumber, picks).then(
-        function(result) {
-          myPromise.resolve(result)
+      validatePlayerPicks(function(err, msg) {
+        if (err) {
+          console.log('here 1');
+          myPromise.reject(err);
+        } else {
+          console.log('here 2');
+
+          f1QuickPickProxy.submitPlayerPicks(year, raceNumber, picks).then(
+            function(result) {
+              myPromise.resolve(result);
+            }
+          );
         }
-      );
+      });
+
+
+      //if (!picksValid) {
+      //  myPromise.reject(validateErr);
+      //}
+
+
 
       return myPromise.promise;
     };
+
+    function validatePlayerPicks(next) {
+      //next(null, 'Picks valid');
+      next('pick problem', 'Picks invalid');
+    }
 
     return RaceManager;
   }

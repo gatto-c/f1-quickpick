@@ -1,5 +1,11 @@
 <app-header></app-header>
 
+<script>
+  $(document).on('close.fndtn.alert', function(event) {
+    console.info('An alert box has been closed!');
+  });
+</script>
+
 <div class="row" style="margin-top: 18px;">
   <div class="small-12 columns">
     <div style="width: 50%; margin: 0 auto;">
@@ -9,6 +15,10 @@
 </div>
 
 <div class="row" style="margin-top: 7px;">
+  <div>
+    <alert ng-repeat="alert in vm.alerts" type="alert.type" close="vm.closeAlert($index)">{{alert.msg}}</alert>
+  </div>
+
   <div class="small-12 columns">
     <div data-ng-repeat="pick in [1,2,3,4,5,6,7,8,9,10]" style="width: 50%; margin: 0 auto;">
       <div class="row" style="margin-top: 3px;">

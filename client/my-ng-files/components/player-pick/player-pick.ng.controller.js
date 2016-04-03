@@ -23,6 +23,22 @@
     defaultPick.driver_id = "0";
     defaultPick.driver_name = "- pick driver -";
 
+    //define array that will contain alerts to be displayed to user
+    vm.alerts = [];
+
+    //display an alert to user by adding to alery array
+    vm.addAlert = function(type, message) {
+      //only display one alert at a time (for now)
+      vm.alerts = [];
+      vm.alerts.push({type: type, msg: message});
+      $scope.$apply();
+    };
+
+    //close the alert at specified alert array index
+    vm.closeAlert = function(index) {
+      vm.alerts.splice(index, 1);
+    };
+
     /**
      * using the pick at the passed index look for a duplicate selection in the playerPicks array
      * @param pickNum - the index of the user's pick in the playerPicks array
@@ -43,15 +59,21 @@
         if (value == 0) return;
         return _.includes(iteratee, value, index + 1);
       });
-
-      //$log.debug('duplicates:', vm.duplicates);
-      //$log.debug('playerPicks:', vm.playerPicks);
     };
 
+    /**
+     * Submit player picks to server/db
+     */
     vm.submit = function() {
-      console.log('submit picks');
       raceManager.submitPlayerPicks(vm.raceTrio.currentRace.year, vm.raceTrio.currentRace.race_number, vm.playerPicks).then(function(result){
-        console.log('controller > picks submitted > result:', result);
+        console.log('submitPlayerPicks, result:', result);
+        if (result.status != 200) {
+          vm.addAlert('warning', result.data);
+        } else {
+          vm.addAlert('success', 'Player pick saved');
+        }
+      }).fail(function(err) {
+        vm.addAlert('warning', err);
       })
     };
 
@@ -69,9 +91,9 @@
         vm.drivers = drivers;
         vm.drivers.unshift(defaultPick); //apply default pick to top of array
 
-        $log.debug('race:', vm.raceTrio.currentRace);
-        $log.debug('drivers:', vm.drivers);
-        $log.debug('playerPicks:', vm.playerPicks);
+        //$log.debug('race:', vm.raceTrio.currentRace);
+        //$log.debug('drivers:', vm.drivers);
+        //$log.debug('playerPicks:', vm.playerPicks);
 
         $scope.$apply();
       });
@@ -91,8 +113,6 @@
       //  );
       //}
     });
-
-
   }
 })();
 
