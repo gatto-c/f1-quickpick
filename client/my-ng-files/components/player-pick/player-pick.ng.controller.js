@@ -26,7 +26,7 @@
     //define array that will contain alerts to be displayed to user
     vm.alerts = [];
 
-    //display an alert to user by adding to alery array
+    //display an alert to user by adding to alery array (types=success, info, or warning)
     vm.addAlert = function(type, message) {
       //only display one alert at a time (for now)
       vm.alerts = [];
@@ -66,7 +66,6 @@
      */
     vm.submit = function() {
       raceManager.submitPlayerPicks(vm.raceTrio.currentRace.year, vm.raceTrio.currentRace.race_number, vm.playerPicks).then(function(result){
-        console.log('submitPlayerPicks, result:', result);
         if (result.status != 200) {
           vm.addAlert('warning', result.data);
         } else {
@@ -78,7 +77,7 @@
     };
 
     vm.reset = function() {
-      console.log('reset picks');
+      vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
     };
 
     /**
@@ -93,8 +92,6 @@
 
         //$log.debug('race:', vm.raceTrio.currentRace);
         //$log.debug('drivers:', vm.drivers);
-        //$log.debug('playerPicks:', vm.playerPicks);
-
         $scope.$apply();
       });
 

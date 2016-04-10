@@ -129,17 +129,20 @@
       return myPromise.promise;
     };
 
+    /**
+     * Submit the player's picks to backend
+     * @param year - race season year
+     * @param raceNumber - number of race
+     * @param picks - player's picks
+     * @returns {*}
+     */
     RaceManager.submitPlayerPicks = function(year, raceNumber, picks) {
       var myPromise = Q.defer();
-      var validateErr;
 
-      validatePlayerPicks(function(err, msg) {
+      validatePlayerPicks(picks, function(err, msg) {
         if (err) {
-          console.log('here 1');
-          myPromise.reject(err);
+          myPromise.reject(msg);
         } else {
-          console.log('here 2');
-
           f1QuickPickProxy.submitPlayerPicks(year, raceNumber, picks).then(
             function(result) {
               myPromise.resolve(result);
@@ -148,19 +151,32 @@
         }
       });
 
-
-      //if (!picksValid) {
-      //  myPromise.reject(validateErr);
-      //}
-
-
-
       return myPromise.promise;
     };
 
-    function validatePlayerPicks(next) {
-      //next(null, 'Picks valid');
-      next('pick problem', 'Picks invalid');
+    /**
+     * validate the player's picks prior to attempting save to backend
+     * @param picks - the player's picks
+     * @param next
+     * @returns {*}
+     */
+    function validatePlayerPicks(picks, next) {
+      //make sure there are 10 picks
+      var nullPick = _.find(picks, function(p){return p == "0"});
+      if (nullPick > -1) {
+        return next('error', 'You must select 10 drivers');
+      }
+
+      //make sure there are no duplicate picks
+      var duplicates = _.filter(picks, function (value, index, iteratee) {
+        return _.includes(iteratee, value, index + 1);
+      });
+      if (duplicates.length > 0) {
+        return next('error', 'You must have no duplicate picks');
+      }
+
+      //make sure all picks are unique
+      next(null, 'picks valid');
     }
 
     return RaceManager;

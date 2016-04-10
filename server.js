@@ -78,7 +78,7 @@ module.exports.startServer = function(config) {
   //admin.loadRaceData(2015, 20).next();
   //admin.loadTestPick().next();
 
-  // Anonymous routes (static files)
+    // Anonymous routes (static files)
   app.use(serveStaticContent(__dirname, './client'));
   app.use(serveStaticContent(__dirname, './static'));
 

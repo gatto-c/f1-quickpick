@@ -14,9 +14,10 @@
   </div>
 </div>
 
-<div class="row" style="margin-top: 7px;">
+<div class="row" style="foundation angular alert
+: 7px;">
   <div>
-    <alert ng-repeat="alert in vm.alerts" type="alert.type" close="vm.closeAlert($index)">{{alert.msg}}</alert>
+    <alert ng-repeat="alert in vm.alerts" type="alert.type" close="vm.closeAlert($index)" style="text-align: center; font-size: larger;">{{alert.msg}}</alert>
   </div>
 
   <div class="small-12 columns">
