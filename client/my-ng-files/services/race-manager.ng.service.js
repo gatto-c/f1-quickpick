@@ -65,6 +65,18 @@
           raceTrio.currentRace = races[currentRaceIndex];
           raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z');
 
+          //var duration = moment.duration("00:36:00");
+          //raceTrio.currentRace.pick_cutoff = moment(raceTrio.currentRace.race_date).subtract(duration);
+          //console.log('currentRace start time:', raceTrio.currentRace.race_date);
+          //console.log('currentRace start time:', moment(raceTrio.currentRace.race_date));
+          //console.log('currentRace pick cutoff:', raceTrio.currentRace.pick_cutoff);
+
+          var d = createMomentDateFromUTCString(raceTrio.currentRace.race_date);
+          d = d.subtract(30, "hours");
+          console.log('d:', d);
+
+
+
           //first race of year
           if (currentRaceIndex == 0) {
             raceTrio.previousRace = null;
@@ -85,6 +97,21 @@
 
       return myPromise.promise;
     };
+
+    function createMomentDateFromUTCString(utcDate) {
+      var t = moment(utcDate);
+      var newTime = moment().set({
+        'year': t.year(),
+        'month': t.month(),
+        'date': t.date(),
+        'hour': t.hour(),
+        'minute': t.minute(),
+        'second': t.second()
+      }).utc();
+      console.log('createMomentDateFromUTCString: ', utcDate , ' >>> ', newTime.utc());
+
+      return newTime;
+    }
 
     /**
      * Calls proxy service to get race details for specified year/race#

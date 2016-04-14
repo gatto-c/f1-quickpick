@@ -1,0 +1,25 @@
+<app-header></app-header>
+
+<div class="row" style="margin-top: 18px;">
+  <div class="small-12 columns">
+    <div style="width: 50%; margin: 0 auto;">
+      Your picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-top: 7px;">
+  <div class="small-12 columns">
+    <ul style="margin: auto; width: 40%; list-style-type:none;">
+      <li ng-repeat="driver in vm.selectedDrivers">{{$index+1}} {{driver.constructor_name}} - {{driver.driver_name}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row" style="margin-top: 7px;">
+  <div class="small-12 columns" style="text-align: center;">
+    <button style="height: 37px; line-height: 0px;" ng-click="vm.submit()">Edit</button>
+  </div>
+</div>
+
+<app-footer></app-footer>

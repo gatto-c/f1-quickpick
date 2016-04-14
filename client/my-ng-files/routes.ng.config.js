@@ -36,9 +36,15 @@ function($routeProvider) {
       controllerAs: 'vm',
       access: {restricted: false}
     })
+  .when('/view-player-pick/:hasplayerpick?', {
+      templateUrl: '/client/my-ng-files/components/player-pick/view-player-pick.ng.template.html',
+      controller: 'ViewPlayerPickController',
+      controllerAs: 'vm',
+      access: {restricted: true}
+    })
   .when('/player-pick/:hasplayerpick?', {
-      templateUrl: '/client/my-ng-files/components/player-pick/player-pick.ng.template.html',
-      controller: 'PlayerPickController',
+      templateUrl: '/client/my-ng-files/components/player-pick/edit-player-pick.ng.template.html',
+      controller: 'EditPlayerPickController',
       controllerAs: 'vm',
       access: {restricted: true}
    })

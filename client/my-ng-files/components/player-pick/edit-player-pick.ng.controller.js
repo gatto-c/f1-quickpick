@@ -5,16 +5,14 @@
 
     .module('f1Quickpick')
 
-    .controller('PlayerPickController', PlayerPickController);
+    .controller('EditPlayerPickController', EditPlayerPickController);
 
-  PlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
+  EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
 
-  function PlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+  function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
     var vm = this;
-    vm.playerpick = {};
     vm.raceTrio = {};
     vm.drivers = {};
-    vm.currentPick = {};
     vm.duplicates = [];
     vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]; //array contains all user's picks (defaults to the default 'pick driver' selection (0)
 
@@ -76,6 +74,9 @@
       })
     };
 
+    /**
+     * reset the player picks back to all unselected
+     */
     vm.reset = function() {
       vm.playerPicks = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
     };
@@ -95,20 +96,19 @@
         $scope.$apply();
       });
 
-
-      ////if the player has a pick, then retrieve it from db now
-      //if ($routeParams.hasplayerpick == true) {
-      //  f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
-      //    function(pick) {
-      //      if(_.isEmpty(pick)) {
-      //        $log.debug('PlayerPickController - no pick located for season:', appConfig.season, ', race:',raceTrio.currentRace.race_number);
-      //      } else {
-      //        vm.currentPick = pick;
-      //        $log.debug('PlayerPickController - pick:', pick);
-      //      }
-      //    }
-      //  );
-      //}
+      //if the player has a pick, then retrieve it from db now
+      if ($routeParams.hasplayerpick === "true") {
+        f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
+          function(picks) {
+            if(_.isEmpty(picks)) {
+              $log.debug('EditPlayerPickController - no pick located for season:', appConfig.season, ', race:',raceTrio.currentRace.race_number);
+            } else {
+              vm.playerPicks = picks[0].picks;
+              $log.debug('EditPlayerPickController - picks:', vm.playerPicks);
+            }
+          }
+        );
+      }
     });
   }
 })();
