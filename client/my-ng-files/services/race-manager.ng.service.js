@@ -63,19 +63,13 @@
           if (currentRaceIndex == -1) return;
 
           raceTrio.currentRace = races[currentRaceIndex];
-          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z');
+          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z') + ' (GMT)';
 
-          //var duration = moment.duration("00:36:00");
-          //raceTrio.currentRace.pick_cutoff = moment(raceTrio.currentRace.race_date).subtract(duration);
-          //console.log('currentRace start time:', raceTrio.currentRace.race_date);
-          //console.log('currentRace start time:', moment(raceTrio.currentRace.race_date));
-          //console.log('currentRace pick cutoff:', raceTrio.currentRace.pick_cutoff);
+          //define the pick cutoff time as -36 hours from race time
+          raceTrio.currentRace.cutoff_time = createMomentDateFromUTCString(raceTrio.currentRace.race_date).subtract(28, "hours");
+          raceTrio.currentRace.cutoff_time_formatted = raceTrio.currentRace.cutoff_time.format('ddd MMMM Do YYYY, h:mm a Z') + ' (GMT)';
 
-          var d = createMomentDateFromUTCString(raceTrio.currentRace.race_date);
-          d = d.subtract(30, "hours");
-          console.log('d:', d);
-
-
+          console.log(races[currentRaceIndex].race_date);
 
           //first race of year
           if (currentRaceIndex == 0) {
@@ -100,7 +94,8 @@
 
     function createMomentDateFromUTCString(utcDate) {
       var t = moment(utcDate);
-      var newTime = moment().set({
+
+      var utcTime = moment().set({
         'year': t.year(),
         'month': t.month(),
         'date': t.date(),
@@ -108,9 +103,9 @@
         'minute': t.minute(),
         'second': t.second()
       }).utc();
-      console.log('createMomentDateFromUTCString: ', utcDate , ' >>> ', newTime.utc());
+      //console.log('createMomentDateFromUTCString: ', utcDate , ' >>> ', newTime.utc());
 
-      return newTime;
+      return utcTime;
     }
 
     /**

@@ -7,11 +7,11 @@
 
     .controller('appFooterController', appFooterController);
 
-  appFooterController.$inject = ['appConfig', 'AuthService'];
+  appFooterController.$inject = ['appConfig', 'AuthService', 'moment'];
 
-  function appFooterController(appConfig, AuthService) {
+  function appFooterController(appConfig, AuthService, moment) {
     var vm = this;
-    vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
+    vm.overrideCurrentDate = appConfig.overrideCurrentDate ? moment(appConfig.overrideCurrentDate).format() : null;
     vm.loggedInUser = AuthService.currentUser();
     vm.placeholderText = "...";
   }
