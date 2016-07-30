@@ -10,7 +10,9 @@
 
       <div><b>You may edit your picks until</b></div>
       <div>{{vm.raceTrio.currentRace.cutoff_time_formatted}}</div>
-      <div style="margin: auto; margin-top: 10px;"><button style="height: 37px; line-height: 0px; float: right;" ng-click="vm.edit()">Edit</button></div>
+      <div style="margin: auto; margin-top: 10px;" ng-if="vm.editAllowed">
+        <button style="height: 37px; line-height: 0px; float: right;" ng-click="vm.edit()">Edit</button>
+      </div>
     </div>
   </div>
 </div>

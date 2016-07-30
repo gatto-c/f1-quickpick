@@ -15,12 +15,22 @@
     vm.allDrivers = {};
     vm.selectedDrivers = {};
     vm.playerPicks = {};
+    vm.editAllowed = false;
 
     /**
      * get the latest race info, build the current race's drivers list
      */
     raceManager.getRaceTrio().then(function(raceTrio){
       vm.raceTrio = raceTrio;
+
+      //allow editing only when current date < current race cutoff
+      var currentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : new Date();
+      currentDate = moment(currentDate);
+      console.log('>>>>>currentDate:', currentDate);
+      console.log('>>>>>>cutOffDate:', moment(vm.raceTrio.currentRace.cutoff_time));
+      if(moment(vm.raceTrio.currentRace.cutoff_time).isSameOrAfter(currentDate, 'minute')) {
+        vm.editAllowed = true;
+      }
 
       raceManager.getRaceDrivers(vm.raceTrio.currentRace).then(function(drivers) {
         vm.allDrivers = drivers;

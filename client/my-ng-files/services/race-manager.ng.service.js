@@ -63,13 +63,11 @@
           if (currentRaceIndex == -1) return;
 
           raceTrio.currentRace = races[currentRaceIndex];
-          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMMM Do YYYY, h:mm a Z') + ' (GMT)';
+          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMM Do YYYY, h:mm a Z') + ' (GMT)';
 
-          //define the pick cutoff time as -36 hours from race time
+          //define the pick cutoff time as -28 hours from race time
           raceTrio.currentRace.cutoff_time = createMomentDateFromUTCString(raceTrio.currentRace.race_date).subtract(28, "hours");
-          raceTrio.currentRace.cutoff_time_formatted = raceTrio.currentRace.cutoff_time.format('ddd MMMM Do YYYY, h:mm a Z') + ' (GMT)';
-
-          console.log(races[currentRaceIndex].race_date);
+          raceTrio.currentRace.cutoff_time_formatted = raceTrio.currentRace.cutoff_time.format('ddd MMM Do YYYY, h:mm a Z') + ' (GMT)';
 
           //first race of year
           if (currentRaceIndex == 0) {
@@ -92,6 +90,11 @@
       return myPromise.promise;
     };
 
+    /**
+     * Transforms utc date in string to proper moment date object
+     * @param utcDate
+     * @returns {*}
+     */
     function createMomentDateFromUTCString(utcDate) {
       var t = moment(utcDate);
 
