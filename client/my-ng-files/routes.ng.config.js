@@ -48,6 +48,12 @@ function($routeProvider) {
       controllerAs: 'vm',
       access: {restricted: true}
    })
+  .when('/kafka-test', {
+      templateUrl: '/client/my-ng-files/components/kafka/kafka-test.ng.template.html',
+      controller: 'KafkaTestController',
+      controllerAs: 'vm',
+      access: {restricted: true}
+   })
   .when('/two', {
       template: '<h1>This is page two!</h1>',
       access: {restricted: true}

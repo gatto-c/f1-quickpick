@@ -21,14 +21,17 @@ angular
       var onRouteChangeStartBroadcast = $rootScope.$on('$routeChangeStart', function (event, next, current) {
         $log.debug('User logged in: ', AuthService.isLoggedIn());
 
-        if (next.access.restricted && AuthService.isLoggedIn() === false) {
+        if (next.access && next.access.restricted && AuthService.isLoggedIn() === false) {
           $log.debug('Auth route check - access not granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});
           $location.path('/login');
           $route.reload();
+        } else if (next && next.access) {
+          $log.debug('Auth route check - access granted: ', {'restricted': next.access.restricted,'user logged in': AuthService.isLoggedIn()});
         } else {
-          $log.debug('Auth route check - access granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});
+          $log.debug('Auth route check - access granted: ', {'user logged in': AuthService.isLoggedIn()});
         }
       });
+
       /*eslint-enable no-unused-vars*/
 
       //remove the broadcast subscription when scope is destroyed
@@ -121,6 +124,12 @@ function($routeProvider) {
   .when('/player-pick/:hasplayerpick?', {
       templateUrl: '/client/my-ng-files/components/player-pick/edit-player-pick.ng.template.html',
       controller: 'EditPlayerPickController',
+      controllerAs: 'vm',
+      access: {restricted: true}
+   })
+  .when('/kafka-test', {
+      templateUrl: '/client/my-ng-files/components/kafka/kafka-test.ng.template.html',
+      controller: 'KafkaTestController',
       controllerAs: 'vm',
       access: {restricted: true}
    })
@@ -567,6 +576,22 @@ function($routeProvider) {
       return myPromise;
     };
 
+    F1QuickPickProxy.submitKafkaMessage = function(message) {
+      var myPromise;
+
+      myPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('kafka')
+        .path('submit-message')
+        .post({message: message}, false, AuthService.getToken())
+        .catch(function () {
+          myPromise = null
+        });
+
+      return myPromise;
+    };
+
+
     return F1QuickPickProxy;
   }
 
@@ -962,6 +987,39 @@ function($routeProvider) {
 
     .module('f1Quickpick')
 
+    .controller('KafkaTestController', KafkaTestController);
+
+  //inject dependencies
+  KafkaTestController.$inject = ['$scope', '$location', '$routeParams', '$log', 'appConfig', 'f1QuickPickProxy'];
+
+  function KafkaTestController($scope, $location, $routeParams, $log, appConfig, proxy) {
+    var vm = this;
+    vm.title = appConfig.appTitle;
+    vm.kafkaMsg = "";
+
+    $log.debug('Kafka Test Controller: starting...');
+
+    vm.submitMessage = function() {
+      proxy.submitKafkaMessage(vm.kafkaMsg).then(
+        function(data) {
+            $log.debug('Kafka message submitted:', data);
+        }
+      );
+    }
+  }
+})();
+}());
+
+;(function() {
+"use strict";
+
+(function() {
+  'use strict';
+
+  angular
+
+    .module('f1Quickpick')
+
     .controller('LoginController', LoginController);
 
     //inject dependencies
@@ -1095,6 +1153,8 @@ function($routeProvider) {
   EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
 
   function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+    console.log('>>>>>here 111');
+
     var vm = this;
     vm.raceTrio = {};
     vm.drivers = {};
@@ -1350,8 +1410,9 @@ angular.module("f1Quickpick").run(["$templateCache", function($templateCache) {$
 $templateCache.put("components/calendar-list/calendar-list.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      <ul>\n        <li ng-repeat=\"(index, race) in vm.races\">{{race.race_name}}</li>\n      </ul>\n    </div>\n  </div>\n</div>\n");
 $templateCache.put("components/footer/footer.ng.template.html","<div class=\"container\" style=\"margin-top: 15px;\">\n  <div class=\"row footer-row\">\n    <div class=\"small-12 columns\" style=\"font-size: 8pt; color: red; text-align: right; background: aliceblue;\">\n      <div ng-if=\"vm.overrideCurrentDate\" style=\"float: left;\">current user: {{vm.loggedInUser}}</div>\n      <div ng-if=\"vm.overrideCurrentDate\" style=\"float: left; margin-left: 15px;\">date override: {{vm.overrideCurrentDate}}</div>\n    </div>\n  </div>\n</div>\n");
 $templateCache.put("components/header/header.ng.template.html","<div class=\"container\">\n  <div class=\"row\">\n    <div class=\"small-8 f1-title columns\">\n      <a href=\"#/\">{{vm.appTitle}}</a>\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"vm.loggedIn\">\n      <div style=\"float: left\"><a href=\"/profile/{{ vm.player }}\">My Profile</a></div>\n      <div class=\"divider\"  style=\"float: right\"></div>\n      <div style=\"float: right\" ng-controller=\"LogoutController as loc\"><a ng-click=\"loc.logout()\" style=\"cursor: pointer\">Logout</a></div>\n    </div>\n    <div class=\"small-4 f1-title columns\" ng-if=\"!vm.loggedIn\">\n      &nbsp;\n    </div>\n  </div>\n</div>\n");
-$templateCache.put("components/login/login.ng.template.html","<app-header></app-header>\n\n\n<div class=\"row\">\n  <div class=\"medium-6 medium-offset-3 columns\">\n    <h2>Login</h2>\n    <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n    <form name=\"form\" ng-submit=\"vm.login()\" role=\"form\">\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.username.$dirty && form.username.$error.required }\">\n        <label for=\"username\">Username</label>\n        <input type=\"text\" name=\"username\" id=\"username\" class=\"form-control\" ng-model=\"vm.loginForm.username\" required />\n        <span ng-show=\"form.username.$dirty && form.username.$error.required\" class=\"help-block\">Username is required</span>\n      </div>\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.password.$dirty && form.password.$error.required }\">\n        <label for=\"password\">Password</label>\n        <input type=\"password\" name=\"password\" id=\"password\" class=\"form-control\" ng-model=\"vm.loginForm.password\" required />\n        <span ng-show=\"form.password.$dirty && form.password.$error.required\" class=\"help-block\">Password is required</span>\n      </div>\n      <div class=\"form-actions\">\n        <button type=\"submit\" ng-disabled=\"form.$invalid || vm.disabled\" class=\"btn btn-primary\">Login</button>\n        <img ng-if=\"vm.dataLoading\" src=\"data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==\" />\n        <a href=\"#/register\" class=\"btn btn-link\">Register</a>\n      </div>\n    </form>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
-$templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-4 columns\">\n    <calendar-list></calendar-list>\n  </div>\n  <div class=\"small-8 columns\">\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h2>Current Season: {{vm.season}}</h2>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Upcoming Race</h3>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"!vm.raceTrio.currentRace\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h4>No Races Currently Set</h4>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"vm.raceTrio.currentRace\">\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_name}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\" ng-if=\"vm.playerHasPick\">\n          <h4><a href=\"#/view-player-pick\">View my picks</a></h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\" ng-if=\"!vm.playerHasPick\">\n          <h4><a href=\"#/edit-player-pick/false\">Select my picks</a></h4>\n        </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
+$templateCache.put("components/kafka/kafka-test.ng.template.html","<app-header></app-header>\n\n\n<div class=\"row\" style=\"margin-top: 32px;\">\n  <div class=\"small-12 small-offset-4 columns\" style=\"font-size: 26px; font-weight: bold\">\n    Kafka Test\n  </div>\n</div>\n<div class=\"row\" style=\"margin-top: 24px;\">\n  <div class=\"small-4 columns\" style=\"text-align: right;\">Send Message to Kafka:</div>\n  <div class=\"small-4 columns\"><input type=\"text\" name=\"kafkaMsg\" id=\"kafkaMsg\" ng-model=\"vm.kafkaMsg\"></div>\n  <div class=\"small-4 columns\"><button style=\"height: 37px; line-height: 0px;\" ng-click=\"vm.submitMessage()\">Submit</button></div>\n</div>\n\n<app-footer></app-footer>\n");
+$templateCache.put("components/login/login.ng.template.html","<app-header></app-header>\n\n\n<div class=\"row\">\n  <div class=\"medium-6 medium-offset-3 columns\">\n    <h2>Login</h2>\n    <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n    <form name=\"form\" ng-submit=\"vm.login()\" role=\"form\">\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.username.$dirty && form.username.$error.required }\">\n        <label for=\"username\">Username</label>\n        <input type=\"text\" name=\"username\" id=\"username\" class=\"form-control\" ng-model=\"vm.loginForm.username\" required />\n        <span ng-show=\"form.username.$dirty && form.username.$error.required\" class=\"help-block\">Username is required</span>\n      </div>\n      <div class=\"form-group\" ng-class=\"{ \'has-error\': form.password.$dirty && form.password.$error.required }\">\n\n        <input type=\"password\" name=\"password\" id=\"password\" class=\"form-control\" ng-model=\"vm.loginForm.password\" required />\n        <span ng-show=\"form.password.$dirty && form.password.$error.required\" class=\"help-block\">Password is required</span>\n      </div>\n      <div class=\"form-actions\">\n        <button type=\"submit\" ng-disabled=\"form.$invalid || vm.disabled\" class=\"btn btn-primary\">Login</button>\n        <img ng-if=\"vm.dataLoading\" src=\"data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==\" />\n        <a href=\"#/register\" class=\"btn btn-link\">Register</a>\n      </div>\n    </form>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
+$templateCache.put("components/main/main.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-4 columns\">\n    <calendar-list></calendar-list>\n  </div>\n  <div class=\"small-8 columns\">\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"height: 25px;\"></div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h2>Current Season: {{vm.season}}</h2>\n      </div>\n    </div>\n    <div class=\"row\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h3>Upcoming Race</h3>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"!vm.raceTrio.currentRace\">\n      <div class=\"small-12 columns\" style=\"text-align: center\">\n        <h4>No Races Currently Set</h4>\n      </div>\n    </div>\n    <div class=\"row\" ng-if=\"vm.raceTrio.currentRace\">\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_name}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\" ng-if=\"vm.playerHasPick\">\n          <h4><a href=\"#/view-player-pick\">View my picks</a></h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\" ng-if=\"!vm.playerHasPick\">\n          <h4><a href=\"#/edit-player-pick/false\">Select my picks</a></h4>\n        </div>\n        <div class=\"small-12 columns\" style=\"text-align: center\">\n          <h4><a href=\"#/kafka-test\">kafka test</a></h4>\n        </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/player-pick/edit-player-pick.ng.template.html","<app-header></app-header>\n\n<script>\n  $(document).on(\'close.fndtn.alert\', function(event) {\n    console.info(\'An alert box has been closed!\');\n  });\n</script>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-12 columns\">\n    <div style=\"width: 50%; margin: 0 auto;\">\n      Select your picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}\n    </div>\n  </div>\n</div>\n\n<div class=\"row\" style=\"margin-top: 7px;\">\n  <div>\n    <alert ng-repeat=\"alert in vm.alerts\" type=\"alert.type\" close=\"vm.closeAlert($index)\" style=\"text-align: center; font-size: larger;\">{{alert.msg}}</alert>\n  </div>\n\n  <div class=\"small-12 columns\">\n    <div data-ng-repeat=\"pick in [1,2,3,4,5,6,7,8,9,10]\" style=\"width: 50%; margin: 0 auto;\">\n      <div class=\"row\" style=\"margin-top: 3px;\">\n        <div class=\"small-12 columns\">\n          <div class=\"pick-position-indicator\">{{pick}}</div>\n          <select class=\"pick-selector\"\n                  name=\"pickSelector{{pick}}\"\n                  id=\"pickSelector{{pick}}\"\n                  ng-model=\"vm.playerPicks[pick-1]\"\n                  ng-change=\"vm.pickSelected()\"\n                  ng-style=\"{background: vm.checkForDuplicate(pick-1) == true ? \'#EF9292\' : \'#FFFFFF\'}\">\n            <option ng-repeat=\"driver in vm.drivers\" value=\"{{driver.driver_id}}\" style=\"background: #FFFFFF\">\n              {{driver.constructor_name}} - {{driver.driver_name}}\n            </option>\n          </select>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n\n<div class=\"row\" style=\"margin-top: 7px;\">\n  <div class=\"small-12 columns\" style=\"text-align: center;\">\n    <button style=\"height: 37px; line-height: 0px;\" ng-click=\"vm.submit()\">Submit</button>\n    <button style=\"height: 37px; line-height: 0px;\" ng-click=\"vm.reset()\">Reset</button>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/player-pick/view-player-pick.ng.template.html","<app-header></app-header>\n\n<div class=\"row\" style=\"margin-top: 18px;\">\n  <div class=\"small-12 columns\">\n    <div style=\"width: 40%; margin: 0 auto;\">\n      <span><b>Your picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}</b></span>\n      <ul style=\"list-style-type:none; margin-top:10px;\">\n        <li ng-repeat=\"driver in vm.selectedDrivers\">{{$index+1}} {{driver.constructor_name}} - {{driver.driver_name}}</li>\n      </ul>\n\n      <div><b>You may edit your picks until</b></div>\n      <div>{{vm.raceTrio.currentRace.cutoff_time_formatted}}</div>\n      <div style=\"margin: auto; margin-top: 10px;\" ng-if=\"vm.editAllowed\">\n        <button style=\"height: 37px; line-height: 0px; float: right;\" ng-click=\"vm.edit()\">Edit</button>\n      </div>\n    </div>\n  </div>\n</div>\n\n<app-footer></app-footer>\n");
 $templateCache.put("components/registration/registration.ng.template.html","<app-header></app-header>\n\n  <div class=\"row\">\n    <div class=\"medium-6 medium-offset-3 columns\">\n      <h2>Register for {{vm.title}}</h2>\n      <div ng-show=\"vm.error\" class=\"alert alert-danger\">{{vm.errorMessage}}</div>\n      <form name=\"registrationForm\" novalidate ng-submit=\"vm.register()\">\n        <div class=\"form-group\" ng-class=\"{ \'has-error\': registrationForm.username.$touched && registrationForm.username.$invalid }\">\n          <input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"Username\" ng-model=\"vm.registerForm.username\" required />\n          <div ng-messages=\"registrationForm.username.$error\" ng-show=\"registrationForm.username.$touched\" role=\"alert\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"password\" placeholder=\"Password\" ng-model=\"vm.registerForm.password\" required>\n          <div ng-messages=\"registrationForm.password.$error\" ng-show=\"registrationForm.password.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div class=\"form-group\">\n          <input type=\"password\" class=\"form-control\" name=\"confirmPassword\" placeholder=\"Confirm Password\" ng-model=\"vm.registerForm.confirmPassword\" required compare-to=\"vm.registerForm.password\">\n          <div ng-messages=\"registrationForm.confirmPassword.$error\" ng-show=\"registrationForm.confirmPassword.$touched\">\n            <div ng-messages-include=\"components/registration/registrationMessages.ng.template.html\"></div>\n          </div>\n        </div>\n        <div>\n          <button type=\"submit\" class=\"btn btn-default\" ng-disabled=\"registrationForm.$invalid\">Register</button>\n        </div>\n      </form>\n    </div>\n  </div>\n\n<app-footer></app-footer>\n");

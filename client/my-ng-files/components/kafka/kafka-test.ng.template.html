@@ -1,0 +1,15 @@
+<app-header></app-header>
+
+
+<div class="row" style="margin-top: 32px;">
+  <div class="small-12 small-offset-4 columns" style="font-size: 26px; font-weight: bold">
+    Kafka Test
+  </div>
+</div>
+<div class="row" style="margin-top: 24px;">
+  <div class="small-4 columns" style="text-align: right;">Send Message to Kafka:</div>
+  <div class="small-4 columns"><input type="text" name="kafkaMsg" id="kafkaMsg" ng-model="vm.kafkaMsg"></div>
+  <div class="small-4 columns"><button style="height: 37px; line-height: 0px;" ng-click="vm.submitMessage()">Submit</button></div>
+</div>
+
+<app-footer></app-footer>

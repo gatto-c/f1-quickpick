@@ -125,6 +125,22 @@
       return myPromise;
     };
 
+    F1QuickPickProxy.submitKafkaMessage = function(message) {
+      var myPromise;
+
+      myPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('kafka')
+        .path('submit-message')
+        .post({message: message}, false, AuthService.getToken())
+        .catch(function () {
+          myPromise = null
+        });
+
+      return myPromise;
+    };
+
+
     return F1QuickPickProxy;
   }
 

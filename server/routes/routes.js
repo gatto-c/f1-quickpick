@@ -6,7 +6,8 @@ const
   Player = require('../models/player'),
   jwt = require('koa-jwt'),
   config = require('../../config.js')[process.env['F1QuickPick_ENV']] || require('../../config.js')['development'],
-  dataAccess = require('../data-access/data-access');
+  dataAccess = require('../data-access/data-access'),
+  kafkaAccess = require('../kafka/kafka-access');
 
 /**
  * Anonymous routes requiring no authentication
@@ -144,6 +145,21 @@ module.exports.secureRouteMiddleware = function(passport) {
   routes.get('/logout', function*(next) {
     this.logout();
     this.redirect('/');
+  });
+
+  routes.post('/kafka/submit-message', function*(next) {
+    var ctx = this;
+    logger.debug('routes > post > /kafka/submit-message:', ctx.request.body.message);
+
+    yield kafkaAccess.submitMessage(ctx.request.body.message, function(err, status){
+      logger.debug('kafkaAccess.submitMessage result: err:', err, ', status:', status);
+      ctx.status = 200;
+      if (err) {
+        ctx.body = err;
+      } else {
+        ctx.body = 'Kafka Message submitted';
+      }
+    });
   });
 
   return routes.middleware();

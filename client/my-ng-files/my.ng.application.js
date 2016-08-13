@@ -18,14 +18,17 @@ angular
       var onRouteChangeStartBroadcast = $rootScope.$on('$routeChangeStart', function (event, next, current) {
         $log.debug('User logged in: ', AuthService.isLoggedIn());
 
-        if (next.access.restricted && AuthService.isLoggedIn() === false) {
+        if (next.access && next.access.restricted && AuthService.isLoggedIn() === false) {
           $log.debug('Auth route check - access not granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});
           $location.path('/login');
           $route.reload();
+        } else if (next && next.access) {
+          $log.debug('Auth route check - access granted: ', {'restricted': next.access.restricted,'user logged in': AuthService.isLoggedIn()});
         } else {
-          $log.debug('Auth route check - access granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});
+          $log.debug('Auth route check - access granted: ', {'user logged in': AuthService.isLoggedIn()});
         }
       });
+
       /*eslint-enable no-unused-vars*/
 
       //remove the broadcast subscription when scope is destroyed

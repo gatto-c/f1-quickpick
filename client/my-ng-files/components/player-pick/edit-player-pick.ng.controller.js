@@ -10,6 +10,8 @@
   EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
 
   function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+    console.log('>>>>>here 111');
+
     var vm = this;
     vm.raceTrio = {};
     vm.drivers = {};
