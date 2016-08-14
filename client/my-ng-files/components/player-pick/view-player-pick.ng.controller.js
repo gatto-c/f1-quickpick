@@ -7,9 +7,9 @@
 
     .controller('ViewPlayerPickController', ViewPlayerPickController);
 
-  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
+  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment'];
 
-  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment) {
     var vm = this;
     vm.raceTrio = {};
     vm.allDrivers = {};
@@ -26,15 +26,17 @@
       //allow editing only when current date < current race cutoff
       var currentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : new Date();
       currentDate = moment(currentDate);
-      console.log('>>>>>currentDate:', currentDate);
-      console.log('>>>>>>cutOffDate:', moment(vm.raceTrio.currentRace.cutoff_time));
+
+      $log.debug('>>>>>currentDate:', currentDate);
+      $log.debug('>>>>>>cutOffDate:', moment(vm.raceTrio.currentRace.cutoff_time));
+
       if(moment(vm.raceTrio.currentRace.cutoff_time).isSameOrAfter(currentDate, 'minute')) {
         vm.editAllowed = true;
       }
 
       raceManager.getRaceDrivers(vm.raceTrio.currentRace).then(function(drivers) {
         vm.allDrivers = drivers;
-        console.log('allDrivers:', vm.allDrivers);
+        $log.debug('allDrivers:', vm.allDrivers);
 
         f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
           function(picks) {

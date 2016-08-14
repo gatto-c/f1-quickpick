@@ -42,7 +42,7 @@ function($routeProvider) {
       controllerAs: 'vm',
       access: {restricted: true}
     })
-  .when('/player-pick/:hasplayerpick?', {
+  .when('/edit-player-pick/:hasplayerpick?', {
       templateUrl: '/client/my-ng-files/components/player-pick/edit-player-pick.ng.template.html',
       controller: 'EditPlayerPickController',
       controllerAs: 'vm',

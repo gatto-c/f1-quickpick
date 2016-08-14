@@ -21,6 +21,8 @@ angular
       var onRouteChangeStartBroadcast = $rootScope.$on('$routeChangeStart', function (event, next, current) {
         $log.debug('User logged in: ', AuthService.isLoggedIn());
 
+        console.log('next:', next, ', logged-in:', AuthService.isLoggedIn());
+
         if (next.access.restricted && AuthService.isLoggedIn() === false) {
           $log.debug('Auth route check - access not granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});
           $location.path('/login');
@@ -118,7 +120,7 @@ function($routeProvider) {
       controllerAs: 'vm',
       access: {restricted: true}
     })
-  .when('/player-pick/:hasplayerpick?', {
+  .when('/edit-player-pick/:hasplayerpick?', {
       templateUrl: '/client/my-ng-files/components/player-pick/edit-player-pick.ng.template.html',
       controller: 'EditPlayerPickController',
       controllerAs: 'vm',
@@ -1211,9 +1213,9 @@ function($routeProvider) {
 
     .controller('ViewPlayerPickController', ViewPlayerPickController);
 
-  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
+  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment'];
 
-  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment) {
     var vm = this;
     vm.raceTrio = {};
     vm.allDrivers = {};
@@ -1230,15 +1232,17 @@ function($routeProvider) {
       //allow editing only when current date < current race cutoff
       var currentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : new Date();
       currentDate = moment(currentDate);
-      console.log('>>>>>currentDate:', currentDate);
-      console.log('>>>>>>cutOffDate:', moment(vm.raceTrio.currentRace.cutoff_time));
+
+      $log.debug('>>>>>currentDate:', currentDate);
+      $log.debug('>>>>>>cutOffDate:', moment(vm.raceTrio.currentRace.cutoff_time));
+
       if(moment(vm.raceTrio.currentRace.cutoff_time).isSameOrAfter(currentDate, 'minute')) {
         vm.editAllowed = true;
       }
 
       raceManager.getRaceDrivers(vm.raceTrio.currentRace).then(function(drivers) {
         vm.allDrivers = drivers;
-        console.log('allDrivers:', vm.allDrivers);
+        $log.debug('allDrivers:', vm.allDrivers);
 
         f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
           function(picks) {
