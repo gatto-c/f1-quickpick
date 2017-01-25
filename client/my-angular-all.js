@@ -1,6 +1,8 @@
 ;(function() {
 "use strict";
 
+/*eslint-disable no-console*/
+
 angular.module("f1Quickpick", [
     'ngMessages'
   , 'ngCookies'
@@ -21,7 +23,7 @@ angular
       var onRouteChangeStartBroadcast = $rootScope.$on('$routeChangeStart', function (event, next, current) {
         $log.debug('User logged in: ', AuthService.isLoggedIn());
 
-        console.log('next:', next, ', logged-in:', AuthService.isLoggedIn());
+        //console.log('next:', next, ', logged-in:', AuthService.isLoggedIn());
 
         if (next.access.restricted && AuthService.isLoggedIn() === false) {
           $log.debug('Auth route check - access not granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});
@@ -67,7 +69,7 @@ angular.module("f1Quickpick")
 	"season": 2015,
 	"apiAddress": "http://localhost:8080",
 	"ergastAPIAddress": "http://ergast.com/api/f1",
-	"overrideCurrentDate": "2015-03-14T01:01:30.000Z"
+	"overrideCurrentDate": "2015-03-13T01:01:30.000Z"
 })
 
 ;
@@ -1213,9 +1215,9 @@ function($routeProvider) {
 
     .controller('ViewPlayerPickController', ViewPlayerPickController);
 
-  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment'];
+  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment', '$location'];
 
-  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment) {
+  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment, $location) {
     var vm = this;
     vm.raceTrio = {};
     vm.allDrivers = {};
@@ -1261,9 +1263,14 @@ function($routeProvider) {
           }
         );
 
-      });
+      });1
 
     });
+
+    vm.edit = function() {
+      $log.debug('>>>>>editing...');
+      $location.path('/edit-player-pick/true');
+    }
   }
 })();
 }());

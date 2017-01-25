@@ -7,7 +7,7 @@ angular.module("f1Quickpick")
 	"season": 2015,
 	"apiAddress": "http://localhost:8080",
 	"ergastAPIAddress": "http://ergast.com/api/f1",
-	"overrideCurrentDate": "2015-03-14T01:01:30.000Z"
+	"overrideCurrentDate": "2015-03-13T01:01:30.000Z"
 })
 
 ;
