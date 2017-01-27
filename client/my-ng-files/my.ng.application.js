@@ -1,3 +1,5 @@
+/*eslint-disable no-console*/
+
 angular.module("f1Quickpick", [
     'ngMessages'
   , 'ngCookies'
@@ -17,6 +19,8 @@ angular
       /*eslint-disable no-unused-vars*/
       var onRouteChangeStartBroadcast = $rootScope.$on('$routeChangeStart', function (event, next, current) {
         $log.debug('User logged in: ', AuthService.isLoggedIn());
+
+        //console.log('next:', next, ', logged-in:', AuthService.isLoggedIn());
 
         if (next.access.restricted && AuthService.isLoggedIn() === false) {
           $log.debug('Auth route check - access not granted: ', {'restricted': next.access.restricted, 'user logged in': AuthService.isLoggedIn()});

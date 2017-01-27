@@ -1,5 +1,6 @@
 $font-stack:    FontAwesome, Helvetica, sans-serif;
 $primary-color: #111;
+$warning-color: #EF9292;
 
 .f1-title {
   font: 100% $font-stack;
@@ -26,8 +27,16 @@ $primary-color: #111;
 }
 
 .pick-selector {
-  width:225px;
+  width:310px;
   display: inline-block;
   margin-left: 7px;
   font-size: 14px;
+}
+
+.pick-selector-option {
+
+}
+
+.pick-selector-option-duplicate {
+
 }

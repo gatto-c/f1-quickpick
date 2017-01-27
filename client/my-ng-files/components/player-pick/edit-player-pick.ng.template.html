@@ -1,0 +1,50 @@
+<app-header></app-header>
+
+<script>
+  $(document).on('close.fndtn.alert', function(event) {
+    console.info('An alert box has been closed!');
+  });
+</script>
+
+<div class="row" style="margin-top: 18px;">
+  <div class="small-12 columns">
+    <div style="width: 50%; margin: 0 auto;">
+      Select your picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-top: 7px;">
+  <div>
+    <alert ng-repeat="alert in vm.alerts" type="alert.type" close="vm.closeAlert($index)" style="text-align: center; font-size: larger;">{{alert.msg}}</alert>
+  </div>
+
+  <div class="small-12 columns">
+    <div data-ng-repeat="pick in [1,2,3,4,5,6,7,8,9,10]" style="width: 50%; margin: 0 auto;">
+      <div class="row" style="margin-top: 3px;">
+        <div class="small-12 columns">
+          <div class="pick-position-indicator">{{pick}}</div>
+          <select class="pick-selector"
+                  name="pickSelector{{pick}}"
+                  id="pickSelector{{pick}}"
+                  ng-model="vm.playerPicks[pick-1]"
+                  ng-change="vm.pickSelected()"
+                  ng-style="{background: vm.checkForDuplicate(pick-1) == true ? '#EF9292' : '#FFFFFF'}">
+            <option ng-repeat="driver in vm.drivers" value="{{driver.driver_id}}" style="background: #FFFFFF">
+              {{driver.constructor_name}} - {{driver.driver_name}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-top: 7px;">
+  <div class="small-12 columns" style="text-align: center;">
+    <button style="height: 37px; line-height: 0px;" ng-click="vm.submit()">Submit</button>
+    <button style="height: 37px; line-height: 0px;" ng-click="vm.reset()">Reset</button>
+  </div>
+</div>
+
+<app-footer></app-footer>

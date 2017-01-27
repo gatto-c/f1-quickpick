@@ -1,0 +1,100 @@
+{
+  "flags": [
+    {
+      "nationality": "American",
+      "country": "United States",
+      "flag_lg": "/static/flags/flag_unitedstates_lg.png",
+      "flag_sm": "/static/flags/flag_unitedstates_sm.png"
+    },
+    {
+      "nationality": "Australian",
+      "country": "Australia",
+      "flag_lg": "/static/flags/flag_australia_lg.png",
+      "flag_sm": "/static/flags/flag_australia_sm.png"
+    },
+    {
+      "nationality": "Brazilian",
+      "country": "Brazil",
+      "flag_lg": "/static/flags/flag_brazil_lg.png",
+      "flag_sm": "/static/flags/flag_brazil_sm.png"
+    },
+    {
+      "nationality": "British",
+      "country": "United Kingdom",
+      "flag_lg": "/static/flags/flag_england_lg.png",
+      "flag_sm": "/static/flags/flag_england_sm.png"
+    },
+    {
+      "nationality": "Danish",
+      "country": "Denmark",
+      "flag_lg": "/static/flags/flag_denmark_lg.png",
+      "flag_sm": "/static/flags/flag_denmark_sm.png"
+    },
+    {
+      "nationality": "Dutch",
+      "country": "Netherlands",
+      "flag_lg": "/static/flags/flag_netherlands_lg.png",
+      "flag_sm": "/static/flags/flag_netherlands_sm.png"
+    },
+    {
+      "nationality": "Finnish",
+      "country": "Finland",
+      "flag_lg": "/static/flags/flag_finland_lg.png",
+      "flag_sm": "/static/flags/flag_finland_sm.png"
+    },
+    {
+      "nationality": "French",
+      "country": "France",
+      "flag_lg": "/static/flags/flag_france_lg.png",
+      "flag_sm": "/static/flags/flag_france_sm.png"
+    },
+    {
+      "nationality": "Italian",
+      "country": "Italy",
+      "flag_lg": "/static/flags/flag_italy_lg.png",
+      "flag_sm": "/static/flags/flag_italy_sm.png"
+    },
+    {
+      "nationality": "German",
+      "country": "Germany",
+      "flag_lg": "/static/flags/flag_germany_lg.png",
+      "flag_sm": "/static/flags/flag_germany_sm.png"
+    },
+    {
+      "nationality": "Indonesian",
+      "country": "Indonesia",
+      "flag_lg": "/static/flags/flag_indonesia_lg.png",
+      "flag_sm": "/static/flags/flag_indonesia_sm.png"
+    },
+    {
+      "nationality": "Mexican",
+      "country": "Mexico",
+      "flag_lg": "/static/flags/flag_mexico_lg.png",
+      "flag_sm": "/static/flags/flag_mexico_sm.png"
+    },
+    {
+      "nationality": "Russian",
+      "country": "Russia",
+      "flag_lg": "/static/flags/flag_russia_lg.png",
+      "flag_sm": "/static/flags/flag_russia_sm.png"
+    },
+    {
+      "nationality": "Spanish",
+      "country": "Spain",
+      "flag_lg": "/static/flags/flag_spain_lg.png",
+      "flag_sm": "/static/flags/flag_spain_sm.png"
+    },
+    {
+      "nationality": "Swedish",
+      "country": "Sweden",
+      "flag_lg": "/static/flags/flag_sweden_lg.png",
+      "flag_sm": "/static/flags/flag_sweden_sm.png"
+    },
+    {
+      "nationality": "Venezuelan",
+      "country": "Venezuela",
+      "flag_lg": "/static/flags/flag_venezuela_lg.png",
+      "flag_sm": "/static/flags/flag_venezuela_sm.png"
+    }
+  ]
+}

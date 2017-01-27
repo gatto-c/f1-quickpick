@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 var config = require('../../config.js')[process.env['F1QuickPick_ENV']] || require('../../config.js')['development'];
 
 var PlayerSchema = new Schema({
-  username: {type: String, lowercase: true, unique: true, required: true, trim: true},
+  username: {type: String, lowercase: true, required: true, trim: true, index: {unique: true}},
   password: {type: String, required: true},
   email: {type: String, required: true, trim: true},
   created: Date

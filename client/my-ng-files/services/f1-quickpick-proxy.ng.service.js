@@ -24,7 +24,7 @@
      */
     F1QuickPickProxy.getRaceCalendar = function() {
       if (!getRaceCalendarPromise) {
-        $log.info('f1QuickPickProxy.getRaceCalendar:', appConfig.season);
+        //$log.info('f1QuickPickProxy.getRaceCalendar:', appConfig.season);
 
         getRaceCalendarPromise = MyHttp
           .path(appConfig.apiAddress)
@@ -87,6 +87,12 @@
       return myPromise;
     };
 
+    /**
+     * Get the race details for a specific year/race #
+     * @param year - year of race
+     * @param raceNumber - the number of the race
+     * @returns {*}
+     */
     F1QuickPickProxy.getRaceDetails = function(year, raceNumber) {
       var myPromise;
       $log.debug('f1QuickPickProxy.getRaceDetails: season:', year, ', race:', raceNumber);
@@ -97,6 +103,21 @@
         .path(year)
         .path(raceNumber)
         .get(null, AuthService.getToken())
+        .catch(function () {
+          myPromise = null
+        });
+
+      return myPromise;
+    };
+
+    F1QuickPickProxy.submitPlayerPicks = function(year, raceNumber, picks) {
+      var myPromise;
+
+      myPromise = MyHttp
+        .path(appConfig.apiAddress)
+        .path('player')
+        .path('pick')
+        .post({year: year, raceNumber: raceNumber, picks: picks}, false, AuthService.getToken())
         .catch(function () {
           myPromise = null
         });

@@ -30,7 +30,7 @@
       function isLoggedIn() {
         var token = getToken();
 
-        $log.debug('isLoggedIn called, token is:', token);
+        //$log.debug('isLoggedIn called, token is:', token);
 
         if(token){
           //var header = angular.fromJson($window.atob(token.split('.')[0]));

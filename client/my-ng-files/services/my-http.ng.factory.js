@@ -50,14 +50,17 @@
      * perform http post operation
      * @param objectToPost
      * @param dataOnly - will return only the data object of the response object if true
+     * @param token - optional - used when posting to secure routes
      * @returns {*|{get}}
      */
-    HttpRequest.prototype.post = function(objectToPost, dataOnly) {
+    HttpRequest.prototype.post = function(objectToPost, dataOnly, token) {
       dataOnly = dataOnly !== false; //defaults to true
-
       var url = this.getUrl();
 
-      return $http.post(url, objectToPost).
+      //if a token is provided then specify an auth header
+      var headers = token ?  {'Authorization': 'bearer ' + token} : {};
+
+      return $http.post(url, objectToPost, {headers: headers}).
         then(function(response){
           if(dataOnly) {
             return response.data;
@@ -65,7 +68,6 @@
             return response;
           }
         }, function(response) {
-          $log.debug('Post response error condition: ', response);
           return response;
         });
 
@@ -74,6 +76,7 @@
     /**
      * perform http get operation
      * @param dataOnly - will return only the data object of the response object if true
+     * @param token - optional - used when posting to secure routes
      * @returns {*|{get}}
      */
     HttpRequest.prototype.get = function(dataOnly, token) {
