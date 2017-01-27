@@ -7,9 +7,9 @@
 
     .controller('EditPlayerPickController', EditPlayerPickController);
 
-  EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager'];
+  EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', '$location'];
 
-  function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager) {
+  function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, $location) {
     var vm = this;
     vm.raceTrio = {};
     vm.drivers = {};
@@ -67,6 +67,7 @@
         if (result.status != 200) {
           vm.addAlert('warning', result.data);
         } else {
+          $location.path('/view-player-pick');
           vm.addAlert('success', 'Player pick saved');
         }
       }).fail(function(err) {
