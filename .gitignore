@@ -5,5 +5,5 @@ coverage/
 .idea/
 .tmp/
 dist/
-client/my-angular-all.js/
+client/my-angular-all.js
 

@@ -67,7 +67,6 @@
         if (result.status != 200) {
           vm.addAlert('warning', result.data);
         } else {
-          $log.debug('>>>>>redirecting to view-player-pick1');
           $location.path('/view-player-pick/true');
           $rootScope.$apply(); //as per: http://stackoverflow.com/questions/32592847/angularjs-location-path-doesnt-work-on-parse-promise
         }
@@ -99,7 +98,7 @@
         $scope.$apply();
       });
 
-      //if the player has a pick, then retrieve it from db now, extra comment
+      //if the player has a pick, then retrieve it from db now
       if ($routeParams.hasplayerpick === "true") {
         f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
           function(picks) {
