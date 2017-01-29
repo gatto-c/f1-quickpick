@@ -10,8 +10,6 @@
   ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment', '$location'];
 
   function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment, $location) {
-    $log.debug('>>>>>ViewPlayerPickController');
-
     var vm = this;
     vm.raceTrio = {};
     vm.allDrivers = {};
