@@ -99,7 +99,7 @@
         $scope.$apply();
       });
 
-      //if the player has a pick, then retrieve it from db now
+      //if the player has a pick, then retrieve it from db now, extra comment
       if ($routeParams.hasplayerpick === "true") {
         f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
           function(picks) {
