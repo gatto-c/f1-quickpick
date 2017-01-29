@@ -56,10 +56,6 @@
         vm.allDrivers = drivers;
         $log.debug('allDrivers:', vm.allDrivers);
 
-        if ($routeParams.editsaved) {
-          $log.debug('>>>>>edit saved');
-        }
-
         f1QuickPickProxy.getPlayerPick(appConfig.season, raceTrio.currentRace.race_number).then(
           function(picks) {
             if(_.isEmpty(picks)) {
@@ -82,7 +78,6 @@
     });
 
     vm.edit = function() {
-      $log.debug('>>>>>editing...');
       $location.path('/edit-player-pick/true');
     }
   }
