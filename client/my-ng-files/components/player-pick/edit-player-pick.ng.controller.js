@@ -67,12 +67,14 @@
         if (result.status != 200) {
           vm.addAlert('warning', result.data);
         } else {
-          $location.path('/view-player-pick');
-          vm.addAlert('success', 'Player pick saved');
+          $log.debug('>>>>>redirecting to view-player-pick1');
+          $location.path('/view-player-pick/true');
+          $rootScope.$apply(); //as per: http://stackoverflow.com/questions/32592847/angularjs-location-path-doesnt-work-on-parse-promise
         }
+
       }).fail(function(err) {
         vm.addAlert('warning', err);
-      })
+      });
     };
 
     /**
