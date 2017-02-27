@@ -9,9 +9,9 @@
 
 
   // inject dependencies
-  raceManager.$inject = ['$log', 'appConfig', 'moment', 'f1QuickPickProxy', 'Q', '$resource', '_'];
+  raceManager.$inject = ['$log', 'appConfig', 'moment', 'f1QuickPickProxy', 'Q', '$resource', '_', 'todaysDate'];
 
-  function raceManager($log, appConfig, moment, f1QuickPickProxy, Q, $resource, _){
+  function raceManager($log, appConfig, moment, f1QuickPickProxy, Q, $resource, _, todaysDate){
     var RaceManager = {};
 
     RaceManager.noCall = function() {
@@ -33,14 +33,13 @@
      * @returns {number}
      */
     var getCurrentRaceIndex = function(races) {
-      var now = appConfig.overrideCurrentDate ? moment(appConfig.overrideCurrentDate) : moment();
+      console.log('>>>>>todaysDate:', todaysDate);
       var currentRaceIndex = -1;
 
       //locate the next upcoming race given today's date
+      //next race will be the next race that arrives immediately after today's date
       for (var i = 0, len = races.length; i < len; i++) {
-        var raceDate = moment(races[i].race_date);
-
-        if(moment(raceDate).isSameOrAfter(now, 'day')) {
+        if(moment.utc(races[i].race_date).isSameOrAfter(moment.utc(todaysDate), 'day')) {
           currentRaceIndex = i;
           break;
         }
@@ -63,7 +62,8 @@
           if (currentRaceIndex == -1) return;
 
           raceTrio.currentRace = races[currentRaceIndex];
-          raceTrio.currentRace.race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMM Do YYYY, h:mm a Z') + ' (GMT)';
+          raceTrio.currentRace.full_race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('ddd MMM Do YYYY, h:mm a Z') + ' (GMT)';
+          raceTrio.currentRace.abbrev_race_date_formatted = moment(races[currentRaceIndex].race_date).utc().format('MMM Do YYYY');
 
           //define the pick cutoff time as -28 hours from race time
           raceTrio.currentRace.cutoff_time = createMomentDateFromUTCString(raceTrio.currentRace.race_date).subtract(28, "hours");

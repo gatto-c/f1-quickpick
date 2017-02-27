@@ -5,20 +5,38 @@
     <alert ng-repeat="alert in vm.alerts" type="alert.type" close="vm.closeAlert($index)" style="text-align: center; font-size: larger;">{{alert.msg}}</alert>
   </div>
 
-  <div class="small-12 columns">
-    <div style="width: 40%; margin: 0 auto;">
+  <div class="row">
+    <div class="small-6 small-centered columns">
       <span><b>Your picks for the {{vm.raceTrio.currentRace.year}} {{vm.raceTrio.currentRace.race_name}}</b></span>
-      <ul style="list-style-type:none; margin-top:10px;">
-        <li ng-repeat="driver in vm.selectedDrivers">{{$index+1}} {{driver.constructor_name}} - {{driver.driver_name}}</li>
-      </ul>
+    </div>
+  </div>
 
+  <div class="row">
+    <div class="small-6 small-centered columns">
+        <ul style="list-style-type:none; margin-top:10px;">
+          <li ng-repeat="driver in vm.selectedDrivers">{{$index+1}} {{driver.constructor_name}} - {{driver.driver_name}}</li>
+        </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-6 small-centered columns">
       <div><b>You may edit your picks until</b></div>
       <div>{{vm.raceTrio.currentRace.cutoff_time_formatted}}</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="small-3 small-centered columns">
+      <div style="margin: auto; margin-top: 10px;">
+        <button style="height: 37px; line-height: 0px; float: right; margin-left: 10px;" ng-click="vm.done()">Done</button>
+      </div>
       <div style="margin: auto; margin-top: 10px;" ng-if="vm.editAllowed">
         <button style="height: 37px; line-height: 0px; float: right;" ng-click="vm.edit()">Edit</button>
       </div>
     </div>
   </div>
+
 </div>
 
 <app-footer></app-footer>

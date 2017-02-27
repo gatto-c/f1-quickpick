@@ -1,21 +1,13 @@
 <app-header></app-header>
 
 <div class="row" style="margin-top: 18px;">
-  <div class="small-4 columns">
-    <calendar-list></calendar-list>
-  </div>
-  <div class="small-8 columns">
+  <div class="small-12 columns">
     <div class="row">
       <div class="small-12 columns" style="height: 25px;"></div>
     </div>
     <div class="row">
       <div class="small-12 columns" style="text-align: center">
-        <h2>Current Season: {{vm.season}}</h2>
-      </div>
-    </div>
-    <div class="row">
-      <div class="small-12 columns" style="text-align: center">
-        <h3>Upcoming Race</h3>
+        <h3>Next Up</h3>
       </div>
     </div>
     <div class="row" ng-if="!vm.raceTrio.currentRace">
@@ -24,18 +16,22 @@
       </div>
     </div>
     <div class="row" ng-if="vm.raceTrio.currentRace">
-        <div class="small-12 columns" style="text-align: center">
-          <h4>{{vm.raceTrio.currentRace.race_name}}</h4>
-        </div>
-        <div class="small-12 columns" style="text-align: center">
-          <h4>{{vm.raceTrio.currentRace.race_date_formatted}}</h4>
-        </div>
-        <div class="small-12 columns" style="text-align: center" ng-if="vm.playerHasPick">
-          <h4><a href="#/view-player-pick">View my picks</a></h4>
-        </div>
-        <div class="small-12 columns" style="text-align: center" ng-if="!vm.playerHasPick">
-          <h4><a href="#/edit-player-pick/false">Select my picks</a></h4>
-        </div>
+      <div class="small-12 columns" style="text-align: center">
+        <h4>{{vm.raceTrio.currentRace.abbrev_race_date_formatted}} - {{vm.raceTrio.currentRace.race_name}}</h4>
+      </div>
+    </div>
+    <div class="row" ng-if="vm.raceTrio.currentRace">
+      <div class="small-12 columns" style="text-align: center" ng-if="vm.playerHasPick">
+        <h4><a href="#/view-player-pick">My Picks</a></h4>
+      </div>
+      <div class="small-12 columns" style="text-align: center" ng-if="!vm.playerHasPick">
+        <h4><a href="#/edit-player-pick/false">My Picks</a></h4>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-12 columns" style="text-align: center">
+        <h4><a href="#/standings">Standings</a></h4>
+      </div>
     </div>
   </div>
 </div>

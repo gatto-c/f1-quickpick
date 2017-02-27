@@ -7,9 +7,9 @@
 
     .controller('ViewPlayerPickController', ViewPlayerPickController);
 
-  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment', '$location'];
+  ViewPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', 'moment', '$location', 'todaysDate'];
 
-  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment, $location) {
+  function ViewPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, moment, $location, todaysDate) {
     var vm = this;
     vm.raceTrio = {};
     vm.allDrivers = {};
@@ -40,13 +40,12 @@
       };
 
       //allow editing only when current date < current race cutoff
-      var currentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : new Date();
-      currentDate = moment(currentDate);
+      var currentDate = moment.utc(todaysDate);
 
       //$log.debug('>>>>>currentDate:', currentDate);
       //$log.debug('>>>>>>cutOffDate:', moment(vm.raceTrio.currentRace.cutoff_time));
 
-      if(moment(vm.raceTrio.currentRace.cutoff_time).isSameOrAfter(currentDate, 'minute')) {
+      if(moment(vm.raceTrio.currentRace.cutoff_time).isSameOrAfter(currentDate, 'second')) {
         vm.editAllowed = true;
       }
 
@@ -77,6 +76,10 @@
 
     vm.edit = function() {
       $location.path('/edit-player-pick/true');
+    };
+
+    vm.done = function() {
+      $location.path('/#');
     }
   }
 })();

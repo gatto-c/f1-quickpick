@@ -7,14 +7,14 @@
 
     .controller('MainController', MainController);
 
-  MainController.$inject = ['$log', 'appConfig', '_', 'raceManager', 'f1QuickPickProxy'];
+  MainController.$inject = ['$log', 'appConfig', '_', 'raceManager', 'f1QuickPickProxy', 'todaysDate'];
 
-  function MainController($log, appConfig, _, raceManager, f1QuickPickProxy) {
+  function MainController($log, appConfig, _, raceManager, f1QuickPickProxy, todaysDate) {
     var vm = this;
     vm.season = appConfig.season;
     vm.raceTrio = {};
     vm.title = appConfig.appTitle;
-    vm.overrideCurrentDate = appConfig.overrideCurrentDate ? appConfig.overrideCurrentDate : null;
+    vm.currentDate = todaysDate;
     vm.currentPick = null;
     vm.playerHasPick = false;
 
@@ -33,3 +33,4 @@
     });
   }
 })();
+

@@ -7,9 +7,9 @@
 
     .controller('EditPlayerPickController', EditPlayerPickController);
 
-  EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', '$location'];
+  EditPlayerPickController.$inject = ['$scope', '$log', 'appConfig', '$routeParams', '_', 'f1QuickPickProxy', 'raceManager', '$location', '$rootScope'];
 
-  function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, $location) {
+  function EditPlayerPickController($scope, $log, appConfig, $routeParams, _, f1QuickPickProxy, raceManager, $location, $rootScope) {
     var vm = this;
     vm.raceTrio = {};
     vm.drivers = {};
@@ -112,6 +112,11 @@
         );
       }
     });
+
+    vm.cancel = function() {
+      $location.path('/view-player-pick/true');
+    }
+
   }
 })();
 

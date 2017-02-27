@@ -11,7 +11,7 @@
 
     function appHeaderController($log, appConfig, AuthService) {
       var vm = this;
-      vm.appTitle = appConfig.appTitle;
+      vm.appTitle = appConfig.appTitle + ' ' + appConfig.season;
       vm.loggedIn = AuthService.isLoggedIn();
       vm.player = AuthService.currentUser();
     }
