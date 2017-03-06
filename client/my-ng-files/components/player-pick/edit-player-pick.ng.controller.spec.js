@@ -1,63 +1,59 @@
-describe('edit-player-pick.ng.controller.spec.js', function() {
-  var $q, $compile, $scope, $window, $controller, newScope;
-
+describe('EditPlayerPickController', function() {
   beforeEach(module('f1Quickpick'));
 
-  //beforeEach(function() {
-  //  var app = angular.module('f1Quickpick', []);
-  //  //app.constant('moment', moment);
-  //});
+  var $controller, $location;
 
-  beforeEach(inject(function(_$controller_){
+  beforeEach(inject(function(_$controller_, _$location_){
     // The injector unwraps the underscores (_) from around the parameter names when matching
     $controller = _$controller_;
-
-    //console.log($controller);
+    $location = _$location_;
   }));
 
-  //beforeEach(inject(function(_$q_, _$rootScope_, _$controller_, _$compile_, _$window_) {
-  //  $q = _$q_;
-  //  $compile = _$compile_;
-  //  $window = _$window_;
-  //  $controller = _$controller_;
-  //  $scope = _$rootScope_;
-  //  newScope = _$rootScope_.$new();
-  //
-  //  $controller('EditPlayerPickController', {$scope: newScope});
-  //  newScope.$apply();
-  //
-  //  // Broadcasting from rootScope
-  //  //$scope.$broadcast('announcement-data', {data: announcementData});
-  //}));
 
-  it('is a dummy test', function() {
+  describe('EditPlayerPickController', function() {
+    it('should have a defined controller and default picks', function() {
+      var $scope = {};
+      var controller = $controller('EditPlayerPickController', {$scope: $scope});
+      //console.log(controller);
+      expect(controller).toBeDefined();
+      expect(controller.playerPicks).toEqual(['0', '0', '0', '0', '0', '0', '0', '0', '0', '0']);
+    });
 
-    $scope = {};
-    var controller = $controller('EditPlayerPickController', { $scope: $scope });
+    it('should confirm no duplicate picks', function() {
+      var $scope = {};
+      var controller = $controller('EditPlayerPickController', {$scope: $scope});
+      controller.playerPicks = ['driver0', 'driver1', 'driver3', 'driver4', 'driver5', 'driver6', 'driver7', 'driver8', 'driver9', 'driver10'];
+      controller.pickSelected();
+      expect(controller.checkForDuplicate(0)).toEqual(false);
+    });
 
-    // An intentionally failing test. No code within expect() will never equal 4.
-    expect(2 + 2).toEqual(4);
+    it('should confirm a duplicate pick', function() {
+      var $scope = {};
+      var controller = $controller('EditPlayerPickController', {$scope: $scope});
+      controller.playerPicks = ['driver0', 'driver1', 'driver3', 'driver4', 'driver5', 'driver6', 'driver3', 'driver8', 'driver9', 'driver10'];
+      controller.pickSelected();
+      expect(controller.checkForDuplicate(2)).toEqual(true);
+    });
+
+    it('should reset user picks', function() {
+      var $scope = {};
+      var controller = $controller('EditPlayerPickController', {$scope: $scope});
+      controller.playerPicks = ['driver0', 'driver1', 'driver3', 'driver4', 'driver5', 'driver6', 'driver7', 'driver8', 'driver9', 'driver10'];
+      controller.pickSelected();
+      expect(controller.playerPicks).toEqual(['driver0', 'driver1', 'driver3', 'driver4', 'driver5', 'driver6', 'driver7', 'driver8', 'driver9', 'driver10']);
+      controller.reset();
+      expect(controller.playerPicks).toEqual(['0', '0', '0', '0', '0', '0', '0', '0', '0', '0']);
+    });
+
+    it('should redirect user to view-player-pick when cancelled', function() {
+      var $scope = {};
+      var controller = $controller('EditPlayerPickController', {$scope: $scope});
+      controller.cancel();
+      expect($location.path()).toBe('/view-player-pick/true');
+    });
   });
+
 });
 
 
-//describe('PasswordController', function() {
-//  beforeEach(module('app'));
-//
-//  var $controller;
-//
-//  beforeEach(inject(function(_$controller_){
-//    // The injector unwraps the underscores (_) from around the parameter names when matching
-//    $controller = _$controller_;
-//  }));
-//
-//  describe('$scope.grade', function() {
-//    it('sets the strength to "strong" if the password length is >8 chars', function() {
-//      var $scope = {};
-//      var controller = $controller('PasswordController', { $scope: $scope });
-//      $scope.password = 'longerthaneightchars';
-//      $scope.grade();
-//      expect($scope.strength).toEqual('strong');
-//    });
-//  });
-//});
+

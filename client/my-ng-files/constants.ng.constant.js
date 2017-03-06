@@ -5,6 +5,6 @@
   .constant("_", window._)
   .constant("moment", moment)
   .constant("Q", Q)
-  .constant("todaysDate", new Date("2016-03-19T01:00:01.000Z"))
+  .constant("todaysDate", new Date("2016-02-19T01:00:01.000Z"))
 })();
 

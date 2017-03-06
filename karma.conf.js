@@ -24,6 +24,7 @@ module.exports = function(config) {
       'client/js/bower_components/angular-route/angular-route.js',
       'client/js/bower_components/angular-resource/angular-resource.js',
       'client/js/bower_components/angular-foundation/mm-foundation.js',
+      'client/js/bower_components/lodash/lodash.js',
       'client/my-angular-all.js',
       'client/**/*.spec.js'
     ],
