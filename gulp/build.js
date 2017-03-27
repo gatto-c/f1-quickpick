@@ -142,7 +142,8 @@ gulp.task('assemble-files',['ng-templates'],function(){
     'client/my-ng-files/**/*.ng.service.js',
     'client/my-ng-files/**/*.ng.controller.js',
     'build/client/**/*.ng.template.js',
-    'client/my-ng-files/**/*.ng.directive.js'])
+    'client/my-ng-files/**/*.ng.directive.js',
+    '!client/my-ng-files/**/*.spec.js'])
     .pipe(iife())
     .pipe(concat('my-angular-all.js'))
     .pipe(gulp.dest('client'));
@@ -178,7 +179,7 @@ gulp.task('sass', function () {
  * Runs eslint and reports errors/warnings in code base
  */
 gulp.task('lint', function() {
-  return gulp.src('client/my-ng-files/**/*.js')
+  return gulp.src(['client/my-ng-files/**/*.js','!client/my-ng-files/**/*.spec.js'])
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(size());

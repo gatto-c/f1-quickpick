@@ -25,6 +25,7 @@
 
 
       vm.login = function () {
+        console.log('>>>>>vm.login()...');
         $log.debug('Attempting Login: ', vm.loginForm);
 
         // initial values
@@ -35,6 +36,7 @@
         AuthService.login(vm.loginForm.username, vm.loginForm.password)
           // handle success
           .then(function () {
+            console.log('>>>>>login success');
             $log.debug('loginCtrl: user logged in');
             $location.path('/');
             vm.disabled = false;
@@ -42,6 +44,7 @@
           })
           // handle error
           .catch(function () {
+            console.log('>>>>>login error');
             $log.debug('loginCtrl: login error: Invalid username and/or password');
             vm.error = true;
             vm.errorMessage = "Invalid username and/or password";

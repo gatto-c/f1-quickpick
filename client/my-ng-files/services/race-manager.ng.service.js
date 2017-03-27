@@ -33,7 +33,6 @@
      * @returns {number}
      */
     var getCurrentRaceIndex = function(races) {
-      console.log('>>>>>todaysDate:', todaysDate);
       var currentRaceIndex = -1;
 
       //locate the next upcoming race given today's date
